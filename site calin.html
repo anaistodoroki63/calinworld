@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CalinTime 💖</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ffb6c1, #ffe4e1);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #e75480;
+    }
+    p {
+      color: #555;
+    }
+    button {
+      background: #e75480;
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      border-radius: 30px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background: #d64570;
+    }
+    .hug {
+      margin-top: 20px;
+      font-size: 40px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>CalinTime 🤗</h1>
+    <p>Besoin d'un câlin ? Clique sur le bouton et reçois un câlin virtuel plein de douceur.</p>
+    <button onclick="donnerCalin()">Donne-moi un câlin</button>
+    <div class="hug" id="hug">🤗💖🤗</div>
+  </div>
+
+  <script>
+    function donnerCalin() {
+      const hug = document.getElementById('hug');
+      hug.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
