@@ -1,110 +1,487 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CâlinWorld 🌸</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CalinWorld — Le monde des câlins</title>
+  <meta name="description" content="CalinWorld — un espace chaleureux pour partager douceur, bien-être et moments de réconfort." />
+  <meta name="theme-color" content="#FF7AA2" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Comic Sans MS', Arial, sans-serif;
-      background: linear-gradient(135deg, #ffd6e8, #ffe4f2);
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    :root{
+      --bg:#fff7fb;
+      --primary:#FF6F91;
+      --accent:#FFB3C6;
+      --muted:#6b6b76;
+      --card:#ffffff;
+      --radius:12px;
+      --container-max:1100px;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
-    .container {
-      background: white;
-      border-radius: 25px;
-      padding: 30px;
-      max-width: 420px;
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,var(--bg), #fff);
+      color:#1a1a1a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.5;
     }
-    h1 {
-      color: #ff69b4;
+    .container{max-width:var(--container-max);margin:0 auto;padding:0 1rem;}
+    header{padding:1rem 0;position:sticky;top:0;background:rgba(255,255,255,0.6);backdrop-filter:blur(6px);z-index:50}
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+    .brand{display:flex;align-items:center;gap:.75rem;text-decoration:none;color:inherit}
+    .brand img{width:44px;height:44px;border-radius:8px;object-fit:cover}
+    .brand h1{font-size:1.05rem;margin:0;font-weight:700}
+    nav ul{list-style:none;margin:0;padding:0;display:flex;gap:1rem;align-items:center}
+    nav a{color:var(--muted);text-decoration:none;font-weight:600}
+    .cta{background:var(--primary);color:white;padding:.6rem .9rem;border-radius:10px;text-decoration:none;font-weight:700}
+
+    .hero{
+      padding:3.2rem 0 2rem;
+      display:grid;
+      grid-template-columns: 1fr 360px;
+      gap:2rem;
+      align-items:start;
     }
-    input {
-      width: 80%;
-      padding: 12px;
-      border-radius: 20px;
-      border: 2px solid #ffb6c1;
-      margin: 10px 0;
-      font-size: 16px;
+    .hero-inner{display:flex;flex-direction:column;gap:1.2rem}
+    .eye-catch{font-size:2rem;font-weight:700;color:#331026}
+    .lead{color:var(--muted);max-width:60ch}
+
+    /* illustration area */
+    .hero-illustration{
+      width:100%;
+      height:260px;
+      border-radius:18px;
+      background:
+        linear-gradient(135deg,var(--primary),var(--accent));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      font-weight:700;
+      box-shadow:0 8px 30px rgba(255,111,145,0.18);
+      position:relative;
+      overflow:hidden;
     }
-    button {
-      background: #ff69b4;
-      color: white;
-      padding: 15px 25px;
-      border-radius: 30px;
-      font-size: 18px;
-      border: none;
-      cursor: pointer;
-      margin-top: 15px;
+    .hero-illustration-inner{
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:14px;
+      padding:1rem;
+      position:relative;
+      z-index:2;
     }
-    .hug {
-      font-size: 40px;
-      margin-top: 15px;
+
+    .hero-illustration .overlay-image{
+      position:absolute;
+      inset:0;
+      background-position:center;
+      background-size:cover;
+      background-repeat:no-repeat;
+      opacity:0.95;
+      border-radius:18px;
+      z-index:1;
+      pointer-events:none;
     }
-    .cat {
-      font-size: 60px;
-      display: none;
-      animation: pop 0.5s ease;
+
+    /* Visible hug button (z-index high + contrasting background) */
+    .hug-btn {
+      background:#ffffff;
+      color:var(--primary);
+      padding:.8rem 1.2rem;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      font-weight:800;
+      box-shadow:0 12px 30px rgba(160,60,90,0.14);
+      transform:translateY(0);
+      transition:transform .12s ease, box-shadow .12s ease;
+      z-index:3;
+      position:relative;
+      font-size:1rem;
     }
-    @keyframes pop {
-      from { transform: scale(0); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+    .hug-btn:active{ transform:translateY(1px) scale(.995) }
+
+    .emoji-row{
+      display:flex;
+      gap:1rem;
+      align-items:center;
+      justify-content:center;
+      margin-top:6px;
+      color:#ffbfcd;
+      font-size:26px;
+      filter:drop-shadow(0 6px 12px rgba(0,0,0,0.06));
+      z-index:2;
     }
-    .counter {
-      margin-top: 10px;
-      color: #555;
+
+    .small{ color:var(--muted); margin-top:6px; z-index:2; position:relative; }
+
+    /* friends list */
+    .friends-card{
+      background:var(--card);
+      border-radius:12px;
+      box-shadow:0 8px 24px rgba(20,20,20,0.05);
+      padding:1rem;
+      max-height:520px;
+      overflow:auto;
     }
-    .log {
-      margin-top: 15px;
-      background: #fff0f5;
-      padding: 10px;
-      border-radius: 15px;
-      max-height: 120px;
-      overflow-y: auto;
-      font-size: 14px;
+    .friends-card h3{margin:0 0 .5rem;font-size:1.05rem;color:var(--primary)}
+    .add-row{display:flex;gap:.5rem;margin-bottom:.75rem}
+    .add-row input{flex:1;padding:.55rem;border-radius:10px;border:1px solid rgba(10,10,10,0.06)}
+    .add-row button{padding:.55rem .8rem;border-radius:10px;border:none;background:var(--primary);color:white;cursor:pointer}
+
+    .friends-list{display:flex;flex-direction:column;gap:.5rem}
+    .friend {
+      display:flex;
+      align-items:center;
+      gap:.6rem;
+      justify-content:space-between;
+      padding:.5rem;
+      border-radius:10px;
+      border:1px solid rgba(10,10,10,0.03);
+      background:linear-gradient(180deg,#fff,#fff);
+    }
+    .friend .left{display:flex;align-items:center;gap:.6rem}
+    .friend .name{font-weight:600}
+    .friend .controls{display:flex;gap:.5rem;align-items:center}
+    .count-badge{background:linear-gradient(90deg,var(--primary),var(--accent));color:white;padding:.25rem .5rem;border-radius:999px;font-weight:700;min-width:36px;text-align:center}
+
+    .friends-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem}
+    .btn-ghost{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:.4rem .65rem;border-radius:8px;cursor:pointer}
+
+    /* emoji flying animation */
+    .emoji-fly {
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:110%;
+      pointer-events:none;
+      font-size:28px;
+      animation:rise 1s ease-out forwards;
+      opacity:0;
+      filter:drop-shadow(0 6px 18px rgba(0,0,0,0.08));
+    }
+    @keyframes rise {
+      0%{opacity:0; transform:translateX(-50%) translateY(0) scale(0.8)}
+      20%{opacity:1}
+      100%{opacity:0; transform:translateX(-50%) translateY(-160px) scale(1.05)}
+    }
+
+    /* gallery placeholders */
+    .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-top:1rem}
+    .gallery img{width:100%;display:block;height:120px;object-fit:cover;border-radius:8px}
+
+    @media (max-width:980px){
+      .hero{grid-template-columns:1fr}
+      .friends-card{order:2}
+      .hero-illustration{height:220px}
+    }
+    @media (max-width:600px){
+      .hero-illustration{height:180px}
+      .emoji-row{font-size:22px}
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>CâlinWorld 🌸</h1>
-    <p>Envoie des câlins kawaii 🤗</p>
+  <header>
+    <div class="container nav">
+      <a class="brand" href="#">
+        <img src="https://via.placeholder.com/80x80.png?text=Logo" alt="CalinWorld logo">
+        <h1>CalinWorld</h1>
+      </a>
 
-    <input id="username" placeholder="Ton pseudo 💕">
-    <input id="target" placeholder="À qui ? 🫂">
+      <nav aria-label="Navigation principale">
+        <ul>
+          <li><a href="#about">À propos</a></li>
+          <li><a href="#features">Avantages</a></li>
+          <li><a href="#gallery">Galerie</a></li>
+          <li><a href="#contact" class="cta">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
 
-    <button onclick="envoyerCalin()">🤗 Donne-moi un câlin</button>
+  <main class="container">
+    <section class="hero" id="home">
+      <div>
+        <div class="hero-inner">
+          <div>
+            <div class="eye-catch">Bienvenue dans le monde des câlins</div>
+            <p class="lead">CalinWorld est un espace chaleureux pensé pour apporter douceur, réconfort et liens humains — en ligne et en vrai.</p>
+          </div>
 
-    <div class="hug" id="hug"></div>
-    <div class="cat" id="cat"></div>
-    <audio id="meow" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_4b6c1d1e61.mp3"></audio>
-    <div class="counter" id="counter"></div>
-    <div class="log" id="log"></div>
-  </div>
+          <div style="display:flex;gap:0.75rem;align-items:center;justify-content:flex-start;margin-top:.5rem">
+            <a href="#contact" class="btn btn-ghost">Nous contacter</a>
+            <a href="#features" class="btn-ghost">En savoir plus</a>
+          </div>
+
+          <div style="margin-top:1.25rem">
+            <div class="hero-illustration">
+              <div class="overlay-image" style="background-image:url('https://picsum.photos/1200/400?random=42');"></div>
+              <div class="hero-illustration-inner" role="region" aria-label="Zone principale">
+                <button id="hugInHero" class="hug-btn" aria-live="polite" aria-pressed="false">Donne‑moi un câlin</button>
+                <div class="emoji-row" id="heroEmojiRow" aria-hidden="false">
+                  <span>🤗</span>
+                  <span>💖</span>
+                  <span>🤗</span>
+                </div>
+                <div class="small" id="heroTotal" style="color:var(--muted)">Câlins reçus : <strong id="heroTotalCount">0</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Friends card on the right -->
+      <aside class="friends-card" aria-labelledby="friendsTitle">
+        <h3 id="friendsTitle">Liste d'ami·e·s</h3>
+
+        <div class="add-row" role="form" aria-label="Ajouter un ami">
+          <input id="friendName" placeholder="Ajouter un ami (ex: Emma)" aria-label="Nom de l'ami">
+          <button id="addFriend" type="button">Ajouter</button>
+        </div>
+
+        <div class="friends-list" id="friendsList" aria-live="polite">
+          <!-- friends entries rendered here -->
+        </div>
+
+        <div class="friends-actions" style="margin-top:.75rem">
+          <button id="selectAll" class="btn-ghost" type="button">Tout sélectionner</button>
+          <button id="clearSel" class="btn-ghost" type="button">Décocher</button>
+          <button id="hugSelected" class="btn-ghost" type="button">Câliner la sélection</button>
+          <button id="hugAll" class="btn-ghost" type="button">Câliner tous</button>
+          <button id="resetAll" class="btn-ghost" type="button">Réinitialiser compteurs</button>
+        </div>
+      </aside>
+    </section>
+
+    <section id="gallery" style="padding-top:1.5rem">
+      <h2 style="margin-bottom:.5rem">Galerie</h2>
+      <p class="small" style="margin-bottom:1rem">Quelques moments capturés — placeholders temporaires.</p>
+      <div class="gallery">
+        <img src="https://picsum.photos/seed/1/400/300" alt="Photo 1">
+        <img src="https://picsum.photos/seed/2/400/300" alt="Photo 2">
+        <img src="https://picsum.photos/seed/3/400/300" alt="Photo 3">
+        <img src="https://picsum.photos/seed/4/400/300" alt="Photo 4">
+        <img src="https://picsum.photos/seed/5/400/300" alt="Photo 5">
+        <img src="https://picsum.photos/seed/6/400/300" alt="Photo 6">
+      </div>
+    </section>
+  </main>
+
+  <footer style="padding:2rem 0;color:var(--muted);text-align:center">
+    © <span id="year"></span> CalinWorld — Tous droits réservés.
+  </footer>
 
   <script>
-    let total = localStorage.getItem('calins') || 0;
-    const counter = document.getElementById('counter');
+    // Keys
+    const FRIENDS_KEY = 'calin_friends_v1';
+    const TOTAL_KEY = 'calin_total_v1';
 
-    function envoyerCalin() {
-      const cats = ['🐱💖','😺✨','😽💕','🐱🌸'];
-      document.getElementById('hug').textContent = '🤗💗🤗';
-      const cat = document.getElementById('cat');
-      cat.textContent = cats[Math.floor(Math.random()*cats.length)];
-      cat.style.display = 'block';
-      document.getElementById('meow').play();
-      total++;
-      localStorage.setItem('calins', total);
-      counter.textContent = '💖 Câlins envoyés : ' + total;
+    // Elements
+    const friendNameInput = document.getElementById('friendName');
+    const addFriendBtn = document.getElementById('addFriend');
+    const friendsListEl = document.getElementById('friendsList');
+    const selectAllBtn = document.getElementById('selectAll');
+    const clearSelBtn = document.getElementById('clearSel');
+    const hugSelectedBtn = document.getElementById('hugSelected');
+    const hugAllBtn = document.getElementById('hugAll');
+    const resetAllBtn = document.getElementById('resetAll');
+    const heroBtn = document.getElementById('hugInHero');
+    const heroTotalCountEl = document.getElementById('heroTotalCount');
+
+    // State
+    let friends = loadFriends();
+    let total = loadTotal();
+
+    // Helpers load/save
+    function loadFriends(){
+      try { return JSON.parse(localStorage.getItem(FRIENDS_KEY) || '[]'); }
+      catch(e){ return []; }
     }
-    counter.textContent = '💖 Câlins envoyés : ' + total;
+    function saveFriends(){ localStorage.setItem(FRIENDS_KEY, JSON.stringify(friends)); }
+    function loadTotal(){ return parseInt(localStorage.getItem(TOTAL_KEY) || '0', 10); }
+    function saveTotal(){ localStorage.setItem(TOTAL_KEY, String(total)); }
+
+    function uid(){ return 'f_' + Math.random().toString(36).slice(2,9); }
+
+    // Render friends list
+    function renderFriends(){
+      friendsListEl.innerHTML = '';
+      if (friends.length === 0){
+        friendsListEl.innerHTML = '<div class="small" style="text-align:center;padding:.8rem;color:var(--muted)">Aucun·e ami·e — ajoute en un·e ci‑dessous.</div>';
+        updateHeroTotal();
+        return;
+      }
+      friends.forEach(f => {
+        const el = document.createElement('div');
+        el.className = 'friend';
+        el.dataset.id = f.id;
+        el.innerHTML = `
+          <div class="left">
+            <label style="display:flex;align-items:center;gap:.6rem;cursor:pointer">
+              <input type="checkbox" class="sel" aria-label="Sélectionner ${escapeHtml(f.name)}">
+              <span class="name">${escapeHtml(f.name)}</span>
+            </label>
+          </div>
+          <div class="controls">
+            <div class="count-badge" aria-live="polite">${f.count}</div>
+            <button class="btn-ghost btn-remove" title="Supprimer ${escapeHtml(f.name)}" aria-label="Supprimer">✖</button>
+          </div>
+        `;
+        // remove handler
+        el.querySelector('.btn-remove').addEventListener('click', ()=>{
+          if (!confirm(`Supprimer ${f.name} ?`)) return;
+          friends = friends.filter(x => x.id !== f.id);
+          saveFriends();
+          renderFriends();
+        });
+        // selection change
+        el.querySelector('.sel').addEventListener('change', updateSelectedCount);
+        friendsListEl.appendChild(el);
+      });
+      updateSelectedCount();
+      updateHeroTotal();
+    }
+
+    // Escape HTML helper
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+
+    // Add friend
+    addFriendBtn.addEventListener('click', addFriend);
+    friendNameInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); addFriend(); }
+    });
+    function addFriend(){
+      const name = friendNameInput.value.trim();
+      if (!name) return;
+      if (friends.some(p => p.name.toLowerCase() === name.toLowerCase())){
+        alert('Cette personne existe déjà.');
+        friendNameInput.value = '';
+        return;
+      }
+      friends.push({ id: uid(), name, count: 0 });
+      saveFriends();
+      friendNameInput.value = '';
+      friendNameInput.focus();
+      renderFriends();
+    }
+
+    // Selection helpers
+    function getSelectedIds(){
+      const checks = Array.from(document.querySelectorAll('.friends-list .sel'));
+      return checks.filter(c=>c.checked).map(c => c.closest('.friend').dataset.id);
+    }
+    function updateSelectedCount(){
+      const n = getSelectedIds().length;
+      // optional: show selection count somewhere (here in title)
+      const title = document.getElementById('friendsTitle');
+      if (title) title.textContent = `Liste d'ami·e·s${n ? ' — ' + n + ' sélectionné'+(n>1?'·e·s':'') : ''}`;
+    }
+
+    selectAllBtn.addEventListener('click', ()=>{
+      document.querySelectorAll('.friends-list .sel').forEach(c=>c.checked=true);
+      updateSelectedCount();
+    });
+    clearSelBtn.addEventListener('click', ()=>{
+      document.querySelectorAll('.friends-list .sel').forEach(c=>c.checked=false);
+      updateSelectedCount();
+    });
+
+    // Hug logic
+    function hugIds(ids){
+      if (!ids || ids.length === 0) return;
+      friends = friends.map(f => ids.includes(f.id) ? {...f, count: (f.count||0)+1} : f );
+      total += ids.length;
+      saveFriends(); saveTotal();
+      renderFriends();
+      showEmojiBurst(Math.min(8, ids.length*2));
+    }
+
+    hugSelectedBtn.addEventListener('click', ()=>{
+      const ids = getSelectedIds();
+      if (ids.length === 0){ alert('Aucune personne sélectionnée.'); return; }
+      hugIds(ids);
+    });
+
+    hugAllBtn.addEventListener('click', ()=>{
+      if (friends.length === 0){ alert('Aucun·e ami·e à câliner.'); return; }
+      hugIds(friends.map(f=>f.id));
+    });
+
+    resetAllBtn.addEventListener('click', ()=>{
+      if (!confirm('Réinitialiser tous les compteurs ?')) return;
+      friends = friends.map(f => ({...f, count:0}));
+      total = 0;
+      saveFriends(); saveTotal();
+      renderFriends();
+    });
+
+    // Hero button: if there are selected friends => hug them, else hug global (increase total only)
+    heroBtn.addEventListener('click', ()=>{
+      const ids = getSelectedIds();
+      if (ids.length > 0){
+        hugIds(ids);
+      } else {
+        // no selection => increment global total only and show burst
+        total += 1;
+        saveTotal();
+        updateHeroTotal();
+        showEmojiBurst(6);
+      }
+    });
+
+    // Emoji burst
+    function showEmojiBurst(n){
+      const emojis = ['🤗','💖','✨','🤍'];
+      for (let i=0;i<Math.min(n,12);i++){
+        const el = document.createElement('div');
+        el.className = 'emoji-fly';
+        el.style.left = `calc(50% + ${Math.floor(Math.random()*240 - 120)}px)`;
+        el.style.bottom = `${110 + Math.floor(Math.random()*30)}%`;
+        el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+        document.body.appendChild(el);
+        setTimeout(()=> el.style.animationDelay = (i*40)+'ms', 10);
+        setTimeout(()=> el.remove(), 1500 + i*80);
+      }
+    }
+
+    // Update hero total display
+    function updateHeroTotal(){
+      heroTotalCountEl.textContent = total;
+    }
+
+    // Storage sync (multiple tabs)
+    window.addEventListener('storage', e=>{
+      if (e.key === FRIENDS_KEY){
+        friends = loadFriends();
+        renderFriends();
+      } else if (e.key === TOTAL_KEY){
+        total = loadTotal();
+        updateHeroTotal();
+      }
+    });
+
+    // Init render
+    function init(){
+      // ensure variables exist
+      if (!heroBtn || !friendsListEl) {
+        console.error('Initialisation impossible — éléments introuvables.');
+        return;
+      }
+      updateHeroTotal();
+      renderFriends();
+      friendNameInput.focus();
+    }
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    init();
   </script>
 </body>
 </html>
