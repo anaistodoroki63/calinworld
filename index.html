@@ -29,15 +29,23 @@
       line-height:1.5;
     }
     .container{max-width:var(--container-max);margin:0 auto;padding:0 1rem;}
-    header{padding:1rem 0;position:sticky;top:0;background:rgba(255,255,255,0.6);backdrop-filter:blur(6px);z-index:50}
+    header{padding:1rem 0;position:sticky;top:0;background:rgba(255,255,255,0.82);backdrop-filter:blur(6px);z-index:60}
     .nav{display:flex;align-items:center;justify-content:space-between;gap:1rem}
     .brand{display:flex;align-items:center;gap:.75rem;text-decoration:none;color:inherit}
     .brand img{width:44px;height:44px;border-radius:8px;object-fit:cover}
     .brand h1{font-size:1.05rem;margin:0;font-weight:700}
     nav ul{list-style:none;margin:0;padding:0;display:flex;gap:1rem;align-items:center}
     nav a{color:var(--muted);text-decoration:none;font-weight:600}
-    .cta{background:var(--primary);color:white;padding:.6rem .9rem;border-radius:10px;text-decoration:none;font-weight:700}
+    .cta{background:var(--primary);color:white;padding:.45rem .75rem;border-radius:10px;text-decoration:none;font-weight:700}
 
+    /* auth button */
+    .auth-btn {
+      background:transparent;border:2px solid transparent;padding:.4rem .65rem;border-radius:10px;cursor:pointer;font-weight:700;
+      color:var(--primary);display:inline-flex;align-items:center;gap:.5rem;
+    }
+    .auth-btn.logged{background:linear-gradient(90deg,var(--primary),var(--accent));color:white;border-color:transparent}
+
+    /* layout updated */
     .hero{
       padding:3.2rem 0 2rem;
       display:grid;
@@ -155,6 +163,16 @@
     .friends-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem}
     .btn-ghost{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:.4rem .65rem;border-radius:8px;cursor:pointer}
 
+    /* modal auth */
+    .modal-backdrop{
+      position:fixed;inset:0;background:rgba(12,12,12,0.45);display:none;align-items:center;justify-content:center;z-index:120;
+    }
+    .modal{
+      background:white;border-radius:12px;padding:1.25rem 1.25rem;width:320px;box-shadow:0 18px 40px rgba(0,0,0,0.18);
+    }
+    .modal h3{margin:0 0 .5rem}
+    .modal input{width:100%;padding:.6rem;border-radius:8px;border:1px solid rgba(0,0,0,0.08);margin-bottom:.5rem}
+
     /* emoji flying animation */
     .emoji-fly {
       position:absolute;
@@ -201,9 +219,14 @@
           <li><a href="#about">À propos</a></li>
           <li><a href="#features">Avantages</a></li>
           <li><a href="#gallery">Galerie</a></li>
-          <li><a href="#connection" class="cta">Connection</a></li>
+          <li><a href="#contact" class="cta">Contact</a></li>
         </ul>
       </nav>
+
+      <!-- Auth button -->
+      <div>
+        <button id="authBtn" class="auth-btn" type="button">Se connecter</button>
+      </div>
     </div>
   </header>
 
@@ -279,209 +302,295 @@
     © <span id="year"></span> CalinWorld — Tous droits réservés.
   </footer>
 
+  <!-- Auth modal -->
+  <div id="authModal" class="modal-backdrop" role="dialog" aria-hidden="true">
+    <div class="modal" role="document" aria-labelledby="authTitle">
+      <h3 id="authTitle">Se connecter</h3>
+      <p class="small" style="margin-top:0">Entrez votre pseudo (il sera stocké localement)</p>
+      <input id="authName" placeholder="Ton pseudo (ex: Emma)" aria-label="Pseudo">
+      <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem">
+        <button id="authCancel" class="btn-ghost" type="button">Annuler</button>
+        <button id="authSubmit" class="cta" type="button">Se connecter</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Keys
-    const FRIENDS_KEY = 'calin_friends_v1';
-    const TOTAL_KEY = 'calin_total_v1';
+    // -----------------------
+    // AUTH (connexion) layer
+    // -----------------------
+    (function(){
+      const AUTH_KEY = 'calin_user_v1';
+      const authBtn = document.getElementById('authBtn');
+      const modal = document.getElementById('authModal');
+      const authNameInput = document.getElementById('authName');
+      const authSubmit = document.getElementById('authSubmit');
+      const authCancel = document.getElementById('authCancel');
 
-    // Elements
-    const friendNameInput = document.getElementById('friendName');
-    const addFriendBtn = document.getElementById('addFriend');
-    const friendsListEl = document.getElementById('friendsList');
-    const selectAllBtn = document.getElementById('selectAll');
-    const clearSelBtn = document.getElementById('clearSel');
-    const hugSelectedBtn = document.getElementById('hugSelected');
-    const hugAllBtn = document.getElementById('hugAll');
-    const resetAllBtn = document.getElementById('resetAll');
-    const heroBtn = document.getElementById('hugInHero');
-    const heroTotalCountEl = document.getElementById('heroTotalCount');
-
-    // State
-    let friends = loadFriends();
-    let total = loadTotal();
-
-    // Helpers load/save
-    function loadFriends(){
-      try { return JSON.parse(localStorage.getItem(FRIENDS_KEY) || '[]'); }
-      catch(e){ return []; }
-    }
-    function saveFriends(){ localStorage.setItem(FRIENDS_KEY, JSON.stringify(friends)); }
-    function loadTotal(){ return parseInt(localStorage.getItem(TOTAL_KEY) || '0', 10); }
-    function saveTotal(){ localStorage.setItem(TOTAL_KEY, String(total)); }
-
-    function uid(){ return 'f_' + Math.random().toString(36).slice(2,9); }
-
-    // Render friends list
-    function renderFriends(){
-      friendsListEl.innerHTML = '';
-      if (friends.length === 0){
-        friendsListEl.innerHTML = '<div class="small" style="text-align:center;padding:.8rem;color:var(--muted)">Aucun·e ami·e — ajoute en un·e ci‑dessous.</div>';
-        updateHeroTotal();
-        return;
+      function getCurrentUser(){
+        try {
+          const raw = localStorage.getItem(AUTH_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch(e){ return null; }
       }
-      friends.forEach(f => {
-        const el = document.createElement('div');
-        el.className = 'friend';
-        el.dataset.id = f.id;
-        el.innerHTML = `
-          <div class="left">
-            <label style="display:flex;align-items:center;gap:.6rem;cursor:pointer">
-              <input type="checkbox" class="sel" aria-label="Sélectionner ${escapeHtml(f.name)}">
-              <span class="name">${escapeHtml(f.name)}</span>
-            </label>
-          </div>
-          <div class="controls">
-            <div class="count-badge" aria-live="polite">${f.count}</div>
-            <button class="btn-ghost btn-remove" title="Supprimer ${escapeHtml(f.name)}" aria-label="Supprimer">✖</button>
-          </div>
-        `;
-        // remove handler
-        el.querySelector('.btn-remove').addEventListener('click', ()=>{
-          if (!confirm(`Supprimer ${f.name} ?`)) return;
-          friends = friends.filter(x => x.id !== f.id);
-          saveFriends();
-          renderFriends();
-        });
-        // selection change
-        el.querySelector('.sel').addEventListener('change', updateSelectedCount);
-        friendsListEl.appendChild(el);
+      function setCurrentUser(u){
+        if (!u) { localStorage.removeItem(AUTH_KEY); return; }
+        localStorage.setItem(AUTH_KEY, JSON.stringify(u));
+      }
+
+      function openModal(){
+        if (!modal) return;
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden','false');
+        authNameInput && authNameInput.focus();
+      }
+      function closeModal(){
+        if (!modal) return;
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden','true');
+        authNameInput.value = '';
+      }
+
+      function renderAuth(){
+        const user = getCurrentUser();
+        if (!authBtn) return;
+        if (user && user.name){
+          authBtn.classList.add('logged');
+          authBtn.textContent = `Bonjour, ${user.name} • Déconnexion`;
+        } else {
+          authBtn.classList.remove('logged');
+          authBtn.textContent = 'Se connecter';
+        }
+      }
+
+      // open modal on click when not logged
+      authBtn && authBtn.addEventListener('click', ()=>{
+        const user = getCurrentUser();
+        if (user && user.name){
+          // logged in -> logout
+          if (confirm('Se déconnecter ?')) {
+            setCurrentUser(null);
+            renderAuth();
+          }
+        } else {
+          openModal();
+        }
       });
-      updateSelectedCount();
-      updateHeroTotal();
-    }
 
-    // Escape HTML helper
-    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+      // submit login
+      authSubmit && authSubmit.addEventListener('click', ()=>{
+        const name = (authNameInput && authNameInput.value || '').trim();
+        if (!name) { alert('Choisis un pseudo.'); authNameInput.focus(); return; }
+        setCurrentUser({ name, loggedAt: Date.now() });
+        renderAuth();
+        closeModal();
+      });
 
-    // Add friend
-    addFriendBtn.addEventListener('click', addFriend);
-    friendNameInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') { e.preventDefault(); addFriend(); }
-    });
-    function addFriend(){
-      const name = friendNameInput.value.trim();
-      if (!name) return;
-      if (friends.some(p => p.name.toLowerCase() === name.toLowerCase())){
-        alert('Cette personne existe déjà.');
+      authCancel && authCancel.addEventListener('click', closeModal);
+
+      // close modal on backdrop click
+      modal && modal.addEventListener('click', (e)=>{
+        if (e.target === modal) closeModal();
+      });
+
+      // init
+      renderAuth();
+
+      // expose helper to other scripts
+      window.getCurrentUser = getCurrentUser;
+    })();
+
+    // -----------------------
+    // MAIN app (friends + hugs)
+    // -----------------------
+    document.addEventListener('DOMContentLoaded', () => {
+      // Keys
+      const FRIENDS_KEY = 'calin_friends_v1';
+      const TOTAL_KEY = 'calin_total_v1';
+
+      // Elements
+      const friendNameInput = document.getElementById('friendName');
+      const addFriendBtn = document.getElementById('addFriend');
+      const friendsListEl = document.getElementById('friendsList');
+      const selectAllBtn = document.getElementById('selectAll');
+      const clearSelBtn = document.getElementById('clearSel');
+      const hugSelectedBtn = document.getElementById('hugSelected');
+      const hugAllBtn = document.getElementById('hugAll');
+      const resetAllBtn = document.getElementById('resetAll');
+      const heroBtn = document.getElementById('hugInHero');
+      const heroTotalCountEl = document.getElementById('heroTotalCount');
+      const friendsTitle = document.getElementById('friendsTitle');
+
+      // State
+      function loadFriends(){ try { return JSON.parse(localStorage.getItem(FRIENDS_KEY) || '[]'); } catch(e){ return []; } }
+      function saveFriends(f){ localStorage.setItem(FRIENDS_KEY, JSON.stringify(f)); }
+      function loadTotal(){ return parseInt(localStorage.getItem(TOTAL_KEY) || '0', 10); }
+      function saveTotal(){ localStorage.setItem(TOTAL_KEY, String(total)); }
+      function uid(){ return 'f_' + Math.random().toString(36).slice(2,9); }
+
+      let friends = loadFriends();
+      let total = loadTotal();
+
+      // If empty, add demo friends so the list is visible immediately
+      if (friends.length === 0){
+        friends = [{ id: uid(), name: 'Emma', count: 0 }, { id: uid(), name: 'Lucas', count: 0 }];
+        saveFriends(friends);
+      }
+
+      function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+
+      function renderFriends(){
+        if (!friendsListEl) return;
+        friendsListEl.innerHTML = '';
+        if (friends.length === 0){
+          friendsListEl.innerHTML = '<div class="small" style="text-align:center;padding:.8rem;color:var(--muted)">Aucun·e ami·e — ajoute en un·e ci‑dessous.</div>';
+          updateHeroTotal();
+          return;
+        }
+        friends.forEach(f => {
+          const el = document.createElement('div');
+          el.className = 'friend';
+          el.dataset.id = f.id;
+          el.innerHTML = `
+            <div class="left">
+              <label style="display:flex;align-items:center;gap:.6rem;cursor:pointer">
+                <input type="checkbox" class="sel" aria-label="Sélectionner ${escapeHtml(f.name)}">
+                <span class="name">${escapeHtml(f.name)}</span>
+              </label>
+            </div>
+            <div class="controls">
+              <div class="count-badge" aria-live="polite">${f.count}</div>
+              <button class="btn-ghost btn-remove" title="Supprimer ${escapeHtml(f.name)}" aria-label="Supprimer">✖</button>
+            </div>
+          `;
+          const removeBtn = el.querySelector('.btn-remove');
+          const checkbox = el.querySelector('.sel');
+          removeBtn && removeBtn.addEventListener('click', ()=>{
+            if (!confirm(`Supprimer ${f.name} ?`)) return;
+            friends = friends.filter(x => x.id !== f.id);
+            saveFriends(friends);
+            renderFriends();
+          });
+          checkbox && checkbox.addEventListener('change', updateSelectedCount);
+          friendsListEl.appendChild(el);
+        });
+        updateSelectedCount();
+        updateHeroTotal();
+      }
+
+      function getSelectedIds(){
+        if (!friendsListEl) return [];
+        const checks = Array.from(friendsListEl.querySelectorAll('.sel'));
+        return checks.filter(c=>c.checked).map(c => c.closest('.friend').dataset.id);
+      }
+      function updateSelectedCount(){
+        const n = getSelectedIds().length;
+        if (friendsTitle) friendsTitle.textContent = `Liste d'ami·e·s${n ? ' — ' + n + ' sélectionné'+(n>1?'·e·s':'') : ''}`;
+      }
+
+      function addFriend(){
+        if (!friendNameInput) return;
+        const name = friendNameInput.value.trim();
+        if (!name) return;
+        if (friends.some(p => p.name.toLowerCase() === name.toLowerCase())){
+          alert('Cette personne existe déjà.');
+          friendNameInput.value = '';
+          return;
+        }
+        friends.push({ id: uid(), name, count: 0 });
+        saveFriends(friends);
         friendNameInput.value = '';
-        return;
-      }
-      friends.push({ id: uid(), name, count: 0 });
-      saveFriends();
-      friendNameInput.value = '';
-      friendNameInput.focus();
-      renderFriends();
-    }
-
-    // Selection helpers
-    function getSelectedIds(){
-      const checks = Array.from(document.querySelectorAll('.friends-list .sel'));
-      return checks.filter(c=>c.checked).map(c => c.closest('.friend').dataset.id);
-    }
-    function updateSelectedCount(){
-      const n = getSelectedIds().length;
-      // optional: show selection count somewhere (here in title)
-      const title = document.getElementById('friendsTitle');
-      if (title) title.textContent = `Liste d'ami·e·s${n ? ' — ' + n + ' sélectionné'+(n>1?'·e·s':'') : ''}`;
-    }
-
-    selectAllBtn.addEventListener('click', ()=>{
-      document.querySelectorAll('.friends-list .sel').forEach(c=>c.checked=true);
-      updateSelectedCount();
-    });
-    clearSelBtn.addEventListener('click', ()=>{
-      document.querySelectorAll('.friends-list .sel').forEach(c=>c.checked=false);
-      updateSelectedCount();
-    });
-
-    // Hug logic
-    function hugIds(ids){
-      if (!ids || ids.length === 0) return;
-      friends = friends.map(f => ids.includes(f.id) ? {...f, count: (f.count||0)+1} : f );
-      total += ids.length;
-      saveFriends(); saveTotal();
-      renderFriends();
-      showEmojiBurst(Math.min(8, ids.length*2));
-    }
-
-    hugSelectedBtn.addEventListener('click', ()=>{
-      const ids = getSelectedIds();
-      if (ids.length === 0){ alert('Aucune personne sélectionnée.'); return; }
-      hugIds(ids);
-    });
-
-    hugAllBtn.addEventListener('click', ()=>{
-      if (friends.length === 0){ alert('Aucun·e ami·e à câliner.'); return; }
-      hugIds(friends.map(f=>f.id));
-    });
-
-    resetAllBtn.addEventListener('click', ()=>{
-      if (!confirm('Réinitialiser tous les compteurs ?')) return;
-      friends = friends.map(f => ({...f, count:0}));
-      total = 0;
-      saveFriends(); saveTotal();
-      renderFriends();
-    });
-
-    // Hero button: if there are selected friends => hug them, else hug global (increase total only)
-    heroBtn.addEventListener('click', ()=>{
-      const ids = getSelectedIds();
-      if (ids.length > 0){
-        hugIds(ids);
-      } else {
-        // no selection => increment global total only and show burst
-        total += 1;
-        saveTotal();
-        updateHeroTotal();
-        showEmojiBurst(6);
-      }
-    });
-
-    // Emoji burst
-    function showEmojiBurst(n){
-      const emojis = ['🤗','💖','✨','🤍'];
-      for (let i=0;i<Math.min(n,12);i++){
-        const el = document.createElement('div');
-        el.className = 'emoji-fly';
-        el.style.left = `calc(50% + ${Math.floor(Math.random()*240 - 120)}px)`;
-        el.style.bottom = `${110 + Math.floor(Math.random()*30)}%`;
-        el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
-        document.body.appendChild(el);
-        setTimeout(()=> el.style.animationDelay = (i*40)+'ms', 10);
-        setTimeout(()=> el.remove(), 1500 + i*80);
-      }
-    }
-
-    // Update hero total display
-    function updateHeroTotal(){
-      heroTotalCountEl.textContent = total;
-    }
-
-    // Storage sync (multiple tabs)
-    window.addEventListener('storage', e=>{
-      if (e.key === FRIENDS_KEY){
-        friends = loadFriends();
+        friendNameInput.focus();
         renderFriends();
-      } else if (e.key === TOTAL_KEY){
-        total = loadTotal();
-        updateHeroTotal();
       }
-    });
+      addFriendBtn && addFriendBtn.addEventListener('click', addFriend);
+      friendNameInput && friendNameInput.addEventListener('keydown', e=>{
+        if (e.key === 'Enter'){ e.preventDefault(); addFriend(); }
+      });
 
-    // Init render
-    function init(){
-      // ensure variables exist
-      if (!heroBtn || !friendsListEl) {
-        console.error('Initialisation impossible — éléments introuvables.');
-        return;
+      function showEmojiBurst(n){
+        const emojis = ['🤗','💖','✨','🤍'];
+        for (let i=0;i<Math.min(n,12);i++){
+          const el = document.createElement('div');
+          el.className = 'emoji-fly';
+          el.style.left = `calc(50% + ${Math.floor(Math.random()*240 - 120)}px)`;
+          el.style.bottom = `${110 + Math.floor(Math.random()*30)}%`;
+          el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+          document.body.appendChild(el);
+          setTimeout(()=> el.style.animationDelay = (i*40)+'ms', 10);
+          setTimeout(()=> el.remove(), 1500 + i*80);
+        }
       }
+
+      function hugIds(ids){
+        if (!ids || ids.length === 0) return;
+        friends = friends.map(f => ids.includes(f.id) ? {...f, count: (f.count||0)+1} : f );
+        total += ids.length;
+        saveFriends(friends); saveTotal();
+        renderFriends();
+        showEmojiBurst(Math.min(8, ids.length*2));
+      }
+
+      hugSelectedBtn && hugSelectedBtn.addEventListener('click', ()=>{
+        const ids = getSelectedIds();
+        if (ids.length === 0){ alert('Aucune personne sélectionnée.'); return; }
+        hugIds(ids);
+      });
+      hugAllBtn && hugAllBtn.addEventListener('click', ()=>{
+        if (friends.length === 0){ alert('Aucun·e ami·e à câliner.'); return; }
+        hugIds(friends.map(f=>f.id));
+      });
+      resetAllBtn && resetAllBtn.addEventListener('click', ()=>{
+        if (!confirm('Réinitialiser tous les compteurs ?')) return;
+        friends = friends.map(f => ({...f, count:0}));
+        total = 0;
+        saveFriends(friends); saveTotal();
+        renderFriends();
+      });
+
+      // hero button behavior
+      heroBtn && heroBtn.addEventListener('click', ()=>{
+        const ids = getSelectedIds();
+        if (ids.length > 0) hugIds(ids);
+        else {
+          total += 1;
+          saveTotal();
+          updateHeroTotal();
+          showEmojiBurst(6);
+        }
+      });
+
+      function updateHeroTotal(){
+        if (heroTotalCountEl) heroTotalCountEl.textContent = total;
+      }
+
+      // select/clear
+      selectAllBtn && selectAllBtn.addEventListener('click', ()=>{
+        document.querySelectorAll('.friends-list .sel').forEach(c=>c.checked=true);
+        updateSelectedCount();
+      });
+      clearSelBtn && clearSelBtn.addEventListener('click', ()=>{
+        document.querySelectorAll('.friends-list .sel').forEach(c=>c.checked=false);
+        updateSelectedCount();
+      });
+
+      // storage sync
+      window.addEventListener('storage', e=>{
+        if (e.key === FRIENDS_KEY){
+          friends = loadFriends();
+          renderFriends();
+        } else if (e.key === TOTAL_KEY){
+          total = loadTotal();
+          updateHeroTotal();
+        }
+      });
+
+      // initial render
       updateHeroTotal();
       renderFriends();
-      friendNameInput.focus();
-    }
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    init();
+      friendNameInput && friendNameInput.focus();
+      document.getElementById('year').textContent = new Date().getFullYear();
+    });
   </script>
 </body>
 </html>
