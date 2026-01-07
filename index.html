@@ -1,225 +1,110 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CalinWorld — Le monde des câlins</title>
-  <meta name="description" content="CalinWorld — un espace chaleureux pour partager douceur, bien-être et moments de réconfort." />
-  <meta name="theme-color" content="#FF7AA2" />
-
-  <!-- Placeholders : remplace/ajoute ta propre police ou logo -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CâlinWorld 🌸</title>
   <style>
-    :root{
-      --bg:#fff7fb;
-      --primary:#FF6F91;
-      --accent:#FFB3C6;
-      --muted:#6b6b76;
-      --card:#ffffff;
-      --radius:12px;
-      --container-max:1100px;
-      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    body {
+      font-family: 'Comic Sans MS', Arial, sans-serif;
+      background: linear-gradient(135deg, #ffd6e8, #ffe4f2);
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      background:linear-gradient(180deg,var(--bg), #fff);
-      color:#1a1a1a;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      line-height:1.5;
+    .container {
+      background: white;
+      border-radius: 25px;
+      padding: 30px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.15);
     }
-    .container{max-width:var(--container-max);margin:0 auto;padding:0 1rem;}
-    header{padding:1rem 0;position:sticky;top:0;background:rgba(255,255,255,0.6);backdrop-filter:blur(6px);z-index:50}
-    .nav{display:flex;align-items:center;justify-content:space-between;gap:1rem}
-    .brand{display:flex;align-items:center;gap:.75rem;text-decoration:none;color:inherit}
-    .brand img{width:44px;height:44px;border-radius:8px;object-fit:cover}
-    .brand h1{font-size:1.05rem;margin:0;font-weight:700}
-    nav ul{list-style:none;margin:0;padding:0;display:flex;gap:1rem;align-items:center}
-    nav a{color:var(--muted);text-decoration:none;font-weight:600}
-    .cta{background:var(--primary);color:white;padding:.6rem .9rem;border-radius:10px;text-decoration:none;font-weight:700}
-    .hero{
-      padding:3.2rem 0 4rem;
-      display:grid;
-      grid-template-columns:1fr;
-      gap:2rem;
-      align-items:center;
+    h1 {
+      color: #ff69b4;
     }
-    .hero-inner{display:flex;flex-direction:column;gap:1.2rem}
-    .eye-catch{font-size:2rem;font-weight:700;color:#331026}
-    .lead{color:var(--muted);max-width:60ch}
-    .hero-illustration{
-      width:100%;height:260px;border-radius:18px;background:
-      linear-gradient(135deg,var(--primary),var(--accent));
-      display:flex;align-items:center;justify-content:center;color:white;font-weight:700;
-      box-shadow:0 8px 30px rgba(255,111,145,0.18);
+    input {
+      width: 80%;
+      padding: 12px;
+      border-radius: 20px;
+      border: 2px solid #ffb6c1;
+      margin: 10px 0;
+      font-size: 16px;
     }
-    .grid-features{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem}
-    .card{background:var(--card);padding:1rem;border-radius:12px;box-shadow:0 6px 18px rgba(30,30,30,0.06)}
-    .small{font-size:.9rem;color:var(--muted)}
-    .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem}
-    .gallery img{width:100%;display:block;height:120px;object-fit:cover;border-radius:8px}
-    .contact{display:grid;grid-template-columns:1fr 360px;gap:1rem;padding:2rem 0}
-    footer{padding:2rem 0;color:var(--muted);font-size:.9rem;border-top:1px solid rgba(20,20,20,0.04);margin-top:2rem}
-
-    /* Responsive */
-    @media (max-width:900px){
-      .grid-features{grid-template-columns:repeat(2,1fr)}
-      .gallery{grid-template-columns:repeat(2,1fr)}
-      .contact{grid-template-columns:1fr}
+    button {
+      background: #ff69b4;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 30px;
+      font-size: 18px;
+      border: none;
+      cursor: pointer;
+      margin-top: 15px;
     }
-    @media (max-width:600px){
-      .nav{gap:.5rem}
-      .eye-catch{font-size:1.5rem}
-      .grid-features{grid-template-columns:1fr}
-      nav ul{display:none}
-      .hero{padding:2rem 0}
+    .hug {
+      font-size: 40px;
+      margin-top: 15px;
     }
-
-    /* Simple button style */
-    .btn{display:inline-block;padding:.6rem .9rem;border-radius:10px;text-decoration:none}
-    .btn-outline{border:2px solid rgba(50,50,50,0.08);background:transparent;color:var(--muted)}
-    input,textarea{width:100%;padding:.75rem;border-radius:8px;border:1px solid rgba(30,30,30,0.06);font-size:0.95rem}
-    label{display:block;font-weight:600;margin-bottom:.25rem}
-    .form-row{margin-bottom:.8rem}
-    .muted{color:var(--muted)}
+    .cat {
+      font-size: 60px;
+      display: none;
+      animation: pop 0.5s ease;
+    }
+    @keyframes pop {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .counter {
+      margin-top: 10px;
+      color: #555;
+    }
+    .log {
+      margin-top: 15px;
+      background: #fff0f5;
+      padding: 10px;
+      border-radius: 15px;
+      max-height: 120px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
-  <header>
-    <div class="container nav">
-      <a class="brand" href="#">
-        <!-- Remplace assets/logo.png par ton logo -->
-        <img src="assets/logo.png" alt="CalinWorld logo" onerror="this.style.display='none'">
-        <h1>CalinWorld</h1>
-      </a>
+  <div class="container">
+    <h1>CâlinWorld 🌸</h1>
+    <p>Envoie des câlins kawaii 🤗</p>
 
-      <nav aria-label="Navigation principale">
-        <ul>
-          <li><a href="#about">À propos</a></li>
-          <li><a href="#features">Avantages</a></li>
-          <li><a href="#gallery">Galerie</a></li>
-          <li><a href="#contact" class="cta">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
+    <input id="username" placeholder="Ton pseudo 💕">
+    <input id="target" placeholder="À qui ? 🫂">
 
-  <main>
-    <section class="container hero" id="home">
-      <div class="hero-inner">
-        <div>
-          <div class="eye-catch">Bienvenue dans le monde des câlins</div>
-          <p class="lead">CalinWorld est un espace chaleureux pensé pour apporter douceur, réconfort et liens humains — en ligne et en vrai. Rejoins notre communauté, découvre nos moments partagés et offre/recevoir un câlin virtuel ou réel.</p>
-        </div>
+    <button onclick="envoyerCalin()">🤗 Donne-moi un câlin</button>
 
-        <div style="display:flex;gap:0.75rem;align-items:center">
-          <a href="#contact" class="btn cta">Nous contacter</a>
-          <a href="#features" class="btn btn-outline">En savoir plus</a>
-        </div>
-      </div>
-
-      <div class="hero-illustration" aria-hidden="true">
-        <!-- Illustration placeholder : remplace par une vraie image/illustration -->
-        Illustration / Photo à remplacer
-      </div>
-    </section>
-
-    <section class="container" id="about" style="padding-top:1.5rem">
-      <h2 style="margin-bottom:.5rem">À propos</h2>
-      <p class="muted" style="margin-bottom:1rem">CalinWorld rassemble des personnes qui cherchent des moments de douceur. Nous organisons des événements, ateliers et rencontres bienveillantes, et partageons des ressources pour le bien-être émotionnel.</p>
-
-      <div id="features" class="grid-features" style="margin-top:1rem">
-        <div class="card">
-          <h3 style="margin:0 0 .5rem">Événements chaleureux</h3>
-          <p class="small">Rencontres et ateliers pour créer des connexions authentiques dans un cadre bienveillant.</p>
-        </div>
-        <div class="card">
-          <h3 style="margin:0 0 .5rem">Ressources bien-être</h3>
-          <p class="small">Guides, podcasts et exercices pour cultiver la douceur au quotidien.</p>
-        </div>
-        <div class="card">
-          <h3 style="margin:0 0 .5rem">Communauté</h3>
-          <p class="small">Un espace sûr pour échanger, demander du soutien et célébrer les petits bonheurs.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="container" id="gallery" style="padding-top:2rem">
-      <h2 style="margin-bottom:.5rem">Galerie</h2>
-      <p class="muted" style="margin-bottom:1rem">Quelques moments capturés — remplace par tes photos.</p>
-      <div class="gallery">
-        <img src="assets/photo1.jpg" alt="Photo 1" onerror="this.style.opacity=0.5">
-        <img src="assets/photo2.jpg" alt="Photo 2" onerror="this.style.opacity=0.5">
-        <img src="assets/photo3.jpg" alt="Photo 3" onerror="this.style.opacity=0.5">
-        <img src="assets/photo4.jpg" alt="Photo 4" onerror="this.style.opacity=0.5">
-        <img src="assets/photo5.jpg" alt="Photo 5" onerror="this.style.opacity=0.5">
-        <img src="assets/photo6.jpg" alt="Photo 6" onerror="this.style.opacity=0.5">
-      </div>
-    </section>
-
-    <section class="container contact" id="contact" style="padding-top:2rem">
-      <div>
-        <h2>Contact & Newsletter</h2>
-        <p class="muted">Envie d'en savoir plus ou de proposer une rencontre ? Écris-nous ou inscris-toi à la newsletter.</p>
-
-        <form action="https://example.com/form" method="post" style="margin-top:1rem" aria-label="Formulaire de contact">
-          <div class="form-row">
-            <label for="name">Prénom & Nom</label>
-            <input id="name" name="name" type="text" placeholder="Ton nom">
-          </div>
-          <div class="form-row">
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" placeholder="adresse@exemple.com" required>
-          </div>
-          <div class="form-row">
-            <label for="message">Message</label>
-            <textarea id="message" name="message" rows="5" placeholder="Écris ton message..."></textarea>
-          </div>
-          <div style="display:flex;gap:.5rem;align-items:center">
-            <button class="cta" type="submit">Envoyer</button>
-            <a href="mailto:contact@calinworld.example" class="btn btn-outline">Ou par mail</a>
-          </div>
-        </form>
-      </div>
-
-      <aside style="align-self:start">
-        <div class="card">
-          <h3 style="margin-top:0">Rejoindre la communauté</h3>
-          <p class="small">Inscris-toi à la newsletter pour recevoir les prochains événements et moments doux.</p>
-          <form action="#" method="post" style="margin-top:0.75rem">
-            <div class="form-row">
-              <label for="newsletter-email" class="small">Email</label>
-              <input id="newsletter-email" name="newsletter-email" type="email" placeholder="adresse@exemple.com">
-            </div>
-            <button class="cta" type="submit" style="width:100%">S'inscrire</button>
-          </form>
-        </div>
-      </aside>
-    </section>
-  </main>
-
-  <footer>
-    <div class="container" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
-      <div>
-        <strong>CalinWorld</strong>
-        <div class="muted">© <span id="year"></span> CalinWorld — Tous droits réservés.</div>
-      </div>
-      <div class="muted">Suivez-nous :
-        <a href="#" style="margin-left:.5rem;text-decoration:none">Instagram</a> ·
-        <a href="#" style="margin-left:.25rem;text-decoration:none">Facebook</a> ·
-        <a href="#" style="margin-left:.25rem;text-decoration:none">X</a>
-      </div>
-    </div>
-  </footer>
+    <div class="hug" id="hug"></div>
+    <div class="cat" id="cat"></div>
+    <audio id="meow" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_4b6c1d1e61.mp3"></audio>
+    <div class="counter" id="counter"></div>
+    <div class="log" id="log"></div>
+  </div>
 
   <script>
-    // Petite interaction: mettre l'année courante
-    document.getElementById('year').textContent = new Date().getFullYear();
+    let total = localStorage.getItem('calins') || 0;
+    const counter = document.getElementById('counter');
 
-    // Si tu veux activer un menu mobile plus tard, tu pourras ajouter le toggler ici.
+    function envoyerCalin() {
+      const cats = ['🐱💖','😺✨','😽💕','🐱🌸'];
+      document.getElementById('hug').textContent = '🤗💗🤗';
+      const cat = document.getElementById('cat');
+      cat.textContent = cats[Math.floor(Math.random()*cats.length)];
+      cat.style.display = 'block';
+      document.getElementById('meow').play();
+      total++;
+      localStorage.setItem('calins', total);
+      counter.textContent = '💖 Câlins envoyés : ' + total;
+    }
+    counter.textContent = '💖 Câlins envoyés : ' + total;
   </script>
 </body>
 </html>
