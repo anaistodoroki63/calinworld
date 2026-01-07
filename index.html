@@ -463,8 +463,8 @@
           `;
           const removeBtn = el.querySelector('.btn-remove');
           const checkbox = el.querySelector('.sel');
+          // remove without confirmation
           removeBtn && removeBtn.addEventListener('click', ()=>{
-            if (!confirm(`Supprimer ${f.name} ?`)) return;
             friends = friends.filter(x => x.id !== f.id);
             saveFriends(friends);
             renderFriends();
@@ -538,8 +538,8 @@
         if (friends.length === 0){ alert('Aucun·e ami·e à câliner.'); return; }
         hugIds(friends.map(f=>f.id));
       });
+      // reset without confirmation
       resetAllBtn && resetAllBtn.addEventListener('click', ()=>{
-        if (!confirm('Réinitialiser tous les compteurs ?')) return;
         friends = friends.map(f => ({...f, count:0}));
         total = 0;
         saveFriends(friends); saveTotal();
