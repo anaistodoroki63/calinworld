@@ -210,12 +210,17 @@
   <header>
     <div class="container nav">
       <a class="brand" href="#">
-        <img src="https://unbrunbarbu.com/products/kit-diamond-painting-calin-kawaii-dourson-80cm-x-80cm" alt="CalinWorld logo">
+        <img src="https://via.placeholder.com/80x80.png?text=Logo" alt="CalinWorld logo">
         <h1>CalinWorld</h1>
       </a>
 
       <nav aria-label="Navigation principale">
         <ul>
+          <li><a href="#about">À propos</a></li>
+          <li><a href="#features">Avantages</a></li>
+          <li><a href="#gallery">Galerie</a></li>
+          <li><a href="#contact" class="cta">Contact</a></li>
+        </ul>
       </nav>
 
       <!-- Auth button -->
@@ -235,12 +240,13 @@
           </div>
 
           <div style="display:flex;gap:0.75rem;align-items:center;justify-content:flex-start;margin-top:.5rem">
+            <a href="#contact" class="btn btn-ghost">Nous contacter</a>
             <a href="#features" class="btn-ghost">En savoir plus</a>
           </div>
 
           <div style="margin-top:1.25rem">
             <div class="hero-illustration">
-              <div class="overlay-image" style="background-image:url('https://unbrunbarbu.com/products/kit-diamond-painting-calin-kawaii-dourson-80cm-x-80cm');"></div>
+              <div class="overlay-image" style="background-image:url('https://picsum.photos/1200/400?random=42');"></div>
               <div class="hero-illustration-inner" role="region" aria-label="Zone principale">
                 <button id="hugInHero" class="hug-btn" aria-live="polite" aria-pressed="false">Donne‑moi un câlin</button>
                 <div class="emoji-row" id="heroEmojiRow" aria-hidden="false">
@@ -260,7 +266,7 @@
         <h3 id="friendsTitle">Liste d'ami·e·s</h3>
 
         <div class="add-row" role="form" aria-label="Ajouter un ami">
-          <input id="friendName" placeholder="Ajouter un ami" aria-label="Nom de l'ami">
+          <input id="friendName" placeholder="Ajouter un ami (ex: Emma)" aria-label="Nom de l'ami">
           <button id="addFriend" type="button">Ajouter</button>
         </div>
 
@@ -301,7 +307,7 @@
     <div class="modal" role="document" aria-labelledby="authTitle">
       <h3 id="authTitle">Se connecter</h3>
       <p class="small" style="margin-top:0">Entrez votre pseudo (il sera stocké localement)</p>
-      <input id="authName" placeholder="Ton pseudo" aria-label="Pseudo">
+      <input id="authName" placeholder="Ton pseudo (ex: Emma)" aria-label="Pseudo">
       <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem">
         <button id="authCancel" class="btn-ghost" type="button">Annuler</button>
         <button id="authSubmit" class="cta" type="button">Se connecter</button>
@@ -361,11 +367,9 @@
       authBtn && authBtn.addEventListener('click', ()=>{
         const user = getCurrentUser();
         if (user && user.name){
-          // logged in -> logout
-          if (confirm('Se déconnecter ?')) {
-            setCurrentUser(null);
-            renderAuth();
-          }
+          // logged in -> logout immediately (no confirmation)
+          setCurrentUser(null);
+          renderAuth();
         } else {
           openModal();
         }
@@ -427,7 +431,7 @@
 
       // If empty, add demo friends so the list is visible immediately
       if (friends.length === 0){
-        friends = [{ id: uid(), name: '', count: 0 }, { id: uid(), name: '', count: 0 }];
+        friends = [{ id: uid(), name: 'Emma', count: 0 }, { id: uid(), name: 'Lucas', count: 0 }];
         saveFriends(friends);
       }
 
