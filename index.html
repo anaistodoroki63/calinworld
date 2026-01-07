@@ -3,16 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CalinWorld — Le monde des câlins</title>
-  <meta name="description" content="CalinTime — connexion Google intégrée" />
-  <meta name="theme-color" content="#FF7AA2" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-  <!-- Google Identity Services client -->
+  <title>CalinWorld — Connexion par email ou Google</title>
+  <meta name="description" content="CalinWorld — connexion par email ou Google" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-
   <style>
-    :root{ --bg:#fff7fb; --primary:#FF6F91; --muted:#6b6b76; --card:#ffffff; --container-max:1100px; font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial; }
+    :root{ --bg:#fff7fb; --primary:#FF6F91; --muted:#6b6b76; --card:#ffffff; --container-max:1100px; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial; }
     *{box-sizing:border-box} html,body{height:100%}
     body{margin:0;background:linear-gradient(180deg,var(--bg),#fff);color:#1a1a1a;-webkit-font-smoothing:antialiased;padding:0}
     .container{max-width:var(--container-max);margin:0 auto;padding:0 1rem}
@@ -27,23 +22,20 @@
     .hug-btn{background:#fff;color:var(--primary);padding:.8rem 1.2rem;border-radius:999px;border:none;font-weight:800;cursor:pointer;box-shadow:0 12px 30px rgba(160,60,90,0.14)}
     .friends-card{width:340px;background:var(--card);padding:1rem;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.06);max-height:600px;overflow:auto}
     .add-row{display:flex;gap:.5rem;margin-bottom:.75rem}
-    input[type="text"]{padding:.55rem;border-radius:8px;border:1px solid rgba(0,0,0,0.08);flex:1}
+    input[type="text"], input[type="email"]{padding:.55rem;border-radius:8px;border:1px solid rgba(0,0,0,0.08);flex:1}
     .friends-list{display:flex;flex-direction:column;gap:.5rem}
     .friend{display:flex;justify-content:space-between;align-items:center;padding:.5rem;border-radius:8px;border:1px solid rgba(0,0,0,0.04)}
     .count-badge{background:linear-gradient(90deg,var(--primary),#FFB3C6);color:#fff;padding:.25rem .5rem;border-radius:999px;font-weight:700}
     .received-card{margin-top:12px;background:#fff;padding:.6rem;border-radius:8px;border:1px solid rgba(0,0,0,0.04)}
     .modal-backdrop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:120}
     .modal{background:#fff;padding:1rem;border-radius:10px;min-width:320px}
+    .small{font-size:.9rem;color:var(--muted)}
     @media (max-width:900px){ .hero{flex-direction:column} .friends-card{width:100%} }
   </style>
 </head>
 <body>
   <header class="container">
-    <a class="brand" href="#">
-      <img src="https://via.placeholder.com/56x56.png?text=❤" alt="" style="width:44px;border-radius:8px">
-      <strong>CalinWorld</strong>
-    </a>
-
+    <a class="brand" href="#"><img src="https://via.placeholder.com/56x56.png?text=❤" alt="" style="width:44px;border-radius:8px"><strong>CalinWorld</strong></a>
     <div style="display:flex;align-items:center;gap:.75rem">
       <button id="authBtn" class="auth-btn">Se connecter</button>
     </div>
@@ -53,10 +45,10 @@
     <div class="hero">
       <div class="hero-left">
         <h2 style="margin:0 0 .5rem">Bienvenue</h2>
-        <p style="margin:0 0 1rem;color:var(--muted)">Clique sur un ami pour l'ajouter, ou connecte‑toi via Google pour que tes câlins soient identifiés.</p>
+        <p style="margin:0 0 1rem;color:var(--muted)">Connecte‑toi avec ton email (ou Google) pour voir les câlins reçus à cette adresse.</p>
 
         <div class="hero-illustration" aria-hidden="true">
-          <div class="hero-illustration-inner">
+          <div>
             <button id="hugInHero" class="hug-btn">Donne‑moi un câlin</button>
             <div style="margin-top:.6rem;color:#fff;opacity:.95">🤗 💖 🤗</div>
             <div style="margin-top:.6rem;color:rgba(255,255,255,0.9)">Câlins reçus : <strong id="heroTotalCount">0</strong></div>
@@ -91,18 +83,18 @@
     </div>
   </main>
 
-  <footer class="container" style="padding:1.5rem 0;color:var(--muted);text-align:center">
-    © <span id="year"></span> CalinWorld
-  </footer>
+  <footer class="container" style="padding:1.5rem 0;color:var(--muted);text-align:center">© <span id="year"></span> CalinWorld</footer>
 
-  <!-- Modal with Google button and fallback input -->
+  <!-- Modal with Google button and email/pseudo fallback -->
   <div id="authModal" class="modal-backdrop" role="dialog" aria-hidden="true">
     <div class="modal" role="document">
       <h3 style="margin-top:0">Se connecter</h3>
       <div id="gSignIn" style="margin-bottom:.6rem"></div>
+
       <div style="border-top:1px solid #eee;margin-top:.6rem;padding-top:.6rem">
-        <small class="small" style="color:var(--muted)">Ou entrer un pseudo local</small>
-        <input id="authName" placeholder="Ton pseudo" type="text" style="margin-top:.4rem">
+        <small class="small" style="color:var(--muted)">Ou entrer ton adresse email (et un pseudo optionnel)</small>
+        <input id="authEmail" placeholder="ton@email.ex" type="email" style="margin-top:.4rem">
+        <input id="authName" placeholder="Ton pseudo (optionnel)" type="text" style="margin-top:.4rem">
         <div style="display:flex;justify-content:flex-end;gap:.5rem;margin-top:.6rem">
           <button id="authCancel" class="auth-btn">Annuler</button>
           <button id="authSubmit" class="auth-btn" style="background:var(--primary);color:#fff">Se connecter</button>
@@ -114,191 +106,117 @@
   <script>
   // ======= CONFIG =======
   // Remplace ceci par TON client ID Google (Web application OAuth 2.0 Client ID)
-  const GOOGLE_CLIENT_ID = 'G-9YQJFDTK9W.apps.googleusercontent.com';
+  const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
   // ======================
 
-  // Utilities
   function byId(id){ return document.getElementById(id); }
   function decodeJwtPayload(token){
-    try {
-      const payload = token.split('.')[1];
-      const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
-      return JSON.parse(decodeURIComponent(escape(json)));
-    } catch(e){ return null; }
+    try { const payload = token.split('.')[1]; const json = atob(payload.replace(/-/g,'+').replace(/_/g,'/')); return JSON.parse(decodeURIComponent(escape(json))); } catch(e){ return null; }
   }
 
-  // Auth layer using Google Identity Services + local fallback
+  // Auth (Google + Email)
   (function(){
     const AUTH_KEY = 'calin_user_v1';
     const authBtn = byId('authBtn');
     const modal = byId('authModal');
-    const authNameInput = byId('authName');
+    const authEmail = byId('authEmail');
+    const authName = byId('authName');
     const authSubmit = byId('authSubmit');
     const authCancel = byId('authCancel');
     const gSignInContainer = byId('gSignIn');
 
-    function getCurrentUser(){ try { const raw = localStorage.getItem(AUTH_KEY); return raw ? JSON.parse(raw) : null; } catch(e){return null;} }
+    function getCurrentUser(){ try { const raw = localStorage.getItem(AUTH_KEY); return raw ? JSON.parse(raw) : null; } catch(e){ return null; } }
     function setCurrentUser(u){ if (!u) localStorage.removeItem(AUTH_KEY); else localStorage.setItem(AUTH_KEY, JSON.stringify(u)); }
-    function renderAuth(){
-      const user = getCurrentUser();
-      if (!authBtn) return;
-      if (user && user.name){
-        authBtn.classList.add('logged');
-        authBtn.textContent = `Bonjour, ${user.name} • Déconnexion`;
-      } else {
-        authBtn.classList.remove('logged');
-        authBtn.textContent = 'Se connecter';
-      }
-    }
+    function renderAuth(){ const u = getCurrentUser(); if (!authBtn) return; if (u && (u.email||u.name)){ authBtn.classList.add('logged'); authBtn.textContent = `Bonjour, ${u.name || u.email} • Déconnexion`; } else { authBtn.classList.remove('logged'); authBtn.textContent = 'Se connecter'; } }
 
-    function openModal(){ if (!modal) return; modal.style.display = 'flex'; modal.setAttribute('aria-hidden','false'); authNameInput && authNameInput.focus(); }
-    function closeModal(){ if (!modal) return; modal.style.display = 'none'; modal.setAttribute('aria-hidden','true'); authNameInput.value = ''; }
+    function openModal(){ if (!modal) return; modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); authEmail && authEmail.focus(); }
+    function closeModal(){ if (!modal) return; modal.style.display='none'; modal.setAttribute('aria-hidden','true'); authEmail.value=''; authName.value=''; }
 
-    // handle Google callback
     function handleCredentialResponse(response){
       const payload = decodeJwtPayload(response.credential);
-      if (!payload) { alert('Connexion Google impossible.'); return; }
-      // store user (name, email, picture)
+      if (!payload){ alert('Connexion Google impossible'); return; }
       const user = { name: payload.name || payload.email, email: payload.email, picture: payload.picture, iss: payload.iss };
-      setCurrentUser(user);
-      renderAuth();
-      closeModal();
-      // notify other tabs
-      localStorage.setItem('calin_user_v1', JSON.stringify(user));
+      setCurrentUser(user); renderAuth(); closeModal();
+      localStorage.setItem(AUTH_KEY, JSON.stringify(user));
     }
 
-    // Initialize GIS if client id present
     function initGoogleSignIn(){
-      if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID')) {
-        // Skip rendering Google button if no client id set
+      if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID')){
         gSignInContainer.innerHTML = '<div style="color:var(--muted);font-size:.95rem">Ajoute ton Google Client ID dans le code pour activer.</div>';
         return;
       }
-      // google.accounts.id available via script loaded in <head>
-      window.google && google.accounts && google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleCredentialResponse,
-      });
-      // render button
-      google.accounts.id.renderButton(gSignInContainer, {
-        theme: 'outline',
-        size: 'large',
-        width: '100%'
-      });
-      // optional: automatic prompt (commented out)
-      // google.accounts.id.prompt();
+      window.google && google.accounts && google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleCredentialResponse });
+      google.accounts.id.renderButton(gSignInContainer, { theme:'outline', size:'large', width:'100%' });
     }
 
-    // UI bindings
     authBtn && authBtn.addEventListener('click', ()=>{
-      const user = getCurrentUser();
-      if (user && user.name){
-        // logout immediately
-        setCurrentUser(null);
-        renderAuth();
-        // notify other tabs
-        localStorage.removeItem('calin_user_v1');
-      } else {
-        openModal();
-      }
+      const u = getCurrentUser();
+      if (u && (u.email||u.name)) { setCurrentUser(null); renderAuth(); localStorage.removeItem(AUTH_KEY); }
+      else openModal();
     });
 
     authSubmit && authSubmit.addEventListener('click', ()=>{
-      const name = (authNameInput && authNameInput.value || '').trim();
-      if (!name) { alert('Choisis un pseudo.'); authNameInput.focus(); return; }
-      setCurrentUser({ name, loggedAt: Date.now() });
-      renderAuth();
-      closeModal();
-      localStorage.setItem('calin_user_v1', JSON.stringify(getCurrentUser()));
+      const email = (authEmail && authEmail.value || '').trim();
+      const name = (authName && authName.value || '').trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Entre une adresse email valide'); authEmail.focus(); return; }
+      const user = { email, name: name || email.split('@')[0], local: true, loggedAt: Date.now() };
+      setCurrentUser(user); renderAuth(); closeModal(); localStorage.setItem(AUTH_KEY, JSON.stringify(user));
     });
-    authCancel && authCancel.addEventListener('click', closeModal);
-    modal && modal.addEventListener('click', (e)=> { if (e.target === modal) closeModal(); });
 
-    // init
+    authCancel && authCancel.addEventListener('click', closeModal);
+    modal && modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
     renderAuth();
     window.addEventListener('load', initGoogleSignIn);
     window.getCurrentUser = getCurrentUser;
   })();
   </script>
 
-  <!-- Main app script (keeps previous functionality: friends + hugs + events) -->
   <script>
+  // Main app (friends, events) using email matching for received hugs
   document.addEventListener('DOMContentLoaded', () => {
-    // Keys and elements (same as before). For brevity re-use a compact version here.
     const FRIENDS_KEY = 'calin_friends_v1';
-    const TOTAL_KEY = 'calin_total_v1';
     const EVENTS_KEY = 'calin_hug_events_v1';
     const HERO_KEY = 'calin_hero_total_v1';
+    function load(k,def){ try { return JSON.parse(localStorage.getItem(k) || JSON.stringify(def)); } catch(e){ return def; } }
+    function save(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+    function loadRaw(k,def){ try { return parseInt(localStorage.getItem(k) || def, 10); } catch(e){ return def; } }
+    function saveRaw(k,v){ localStorage.setItem(k, String(v)); }
+    function uid(){ return 'id_' + Math.random().toString(36).slice(2,9); }
 
     const friendNameInput = document.getElementById('friendName');
     const addFriendBtn = document.getElementById('addFriend');
     const friendsListEl = document.getElementById('friendsList');
-    const selectAllBtn = document.getElementById('selectAll');
-    const clearSelBtn = document.getElementById('clearSel');
-    const hugSelectedBtn = document.getElementById('hugSelected');
-    const hugAllBtn = document.getElementById('hugAll');
-    const resetAllBtn = document.getElementById('resetAll');
-    const heroBtn = document.getElementById('hugInHero');
-    const heroTotalCountEl = document.getElementById('heroTotalCount');
     const receivedListEl = document.getElementById('receivedList');
     const receivedSummaryEl = document.getElementById('receivedSummary');
+    const heroTotalCountEl = document.getElementById('heroTotalCount');
 
-    function load(k, def){ try { return JSON.parse(localStorage.getItem(k) || JSON.stringify(def)); } catch(e){ return def; } }
-    function save(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
-    function loadRaw(k, def){ try { return parseInt(localStorage.getItem(k) || def, 10); } catch(e){ return def; } }
-    function saveRaw(k,v){ localStorage.setItem(k, String(v)); }
-
-    function uid(){ return 'id_' + Math.random().toString(36).slice(2,9); }
-
-    // state
     let friends = load(FRIENDS_KEY, []);
     let events = load(EVENTS_KEY, []);
-    let total = loadRaw(TOTAL_KEY, 0);
     let heroTotal = loadRaw(HERO_KEY, 0);
 
-    if (!friends.length){
-      friends = [{ id: uid(), name: 'Emma', count: 0 }, { id: uid(), name: 'Lucas', count: 0 }];
-      save(FRIENDS_KEY, friends);
-    }
+    if (!friends.length){ friends = [{id:uid(),name:'Emma',count:0},{id:uid(),name:'Lucas',count:0}]; save(FRIENDS_KEY, friends); }
 
     function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
 
     function renderFriends(){
       friendsListEl.innerHTML = '';
-      if (!friends.length){ friendsListEl.innerHTML = '<div class="small" style="color:var(--muted)">Aucun·e ami·e</div>'; return; }
+      if (!friends.length){ friendsListEl.innerHTML='<div class="small" style="color:var(--muted)">Aucun·e ami·e</div>'; return; }
       friends.forEach(f=>{
-        const div = document.createElement('div');
-        div.className = 'friend';
-        div.dataset.id = f.id;
+        const div = document.createElement('div'); div.className='friend'; div.dataset.id=f.id;
         div.innerHTML = `<div><label style="display:flex;gap:.5rem;align-items:center"><input class="sel" type="checkbox"><span class="name">${escapeHtml(f.name)}</span></label></div>
           <div style="display:flex;gap:.5rem;align-items:center"><div class="count-badge">${f.count}</div>
-          <button class="btn-ghost btn-hugme" title="Recevoir un câlin de ${escapeHtml(f.name)}">Câline‑moi</button>
+          <button class="btn-ghost btn-hugme">Câline‑moi</button>
           <button class="btn-ghost btn-remove">✖</button></div>`;
-        // actions
-        div.querySelector('.btn-remove').addEventListener('click', ()=>{
-          friends = friends.filter(x=>x.id!==f.id);
-          save(FRIENDS_KEY, friends);
-          renderFriends();
-        });
+        div.querySelector('.btn-remove').addEventListener('click', ()=>{ friends = friends.filter(x=>x.id!==f.id); save(FRIENDS_KEY,friends); renderFriends(); });
         div.querySelector('.btn-hugme').addEventListener('click', ()=>{
           const user = window.getCurrentUser ? window.getCurrentUser() : null;
-          if (!user || !user.name){
-            // open modal
-            const authBtn = document.getElementById('authBtn');
-            authBtn && authBtn.click();
-            return;
-          }
-          const ev = { id: 'e_'+Math.random().toString(36).slice(2,9), fromId: f.id, fromName: f.name, toName: user.name, at: Date.now() };
-          events.unshift(ev);
-          save(EVENTS_KEY, events);
-          // increment hero total and display
-          heroTotal += 1;
-          saveRaw(HERO_KEY, heroTotal);
-          updateHeroTotalDisplay();
-          renderReceived();
-          // small feedback
-          const el = document.createElement('div'); el.textContent = `Câlin reçu de ${f.name}`; el.style.opacity=0; document.body.appendChild(el);
-          showEmojiBurst(3);
+          if (!user || !user.email){ const authBtn = document.getElementById('authBtn'); authBtn && authBtn.click(); return; }
+          // create event from friend f -> user.email
+          const ev = { id: 'e_'+Math.random().toString(36).slice(2,9), fromId: f.id, fromName: f.name, fromEmail: null, toEmail: user.email, toName: user.name || user.email.split('@')[0], at: Date.now() };
+          events.unshift(ev); save(EVENTS_KEY, events);
+          heroTotal += 1; saveRaw(HERO_KEY, heroTotal); updateHeroTotalDisplay();
+          renderReceived(); showEmojiBurst(4);
         });
         friendsListEl.appendChild(div);
       });
@@ -306,55 +224,32 @@
 
     function renderReceived(){
       const user = window.getCurrentUser ? window.getCurrentUser() : null;
-      if (!user || !user.name){ receivedSummaryEl.textContent='Connecte‑toi pour voir'; receivedListEl.innerHTML=''; return; }
-      const myEvents = events.filter(e=>e.toName===user.name).slice(0,20);
+      if (!user || !user.email){ receivedSummaryEl.textContent='Connecte‑toi pour voir'; receivedListEl.innerHTML=''; return; }
+      const myEvents = events.filter(e=>e.toEmail === user.email).slice(0,20);
       if (!myEvents.length){ receivedSummaryEl.textContent='Aucun câlin reçu pour l’instant'; receivedListEl.innerHTML=''; return; }
-      const counts = {};
-      myEvents.forEach(e=>counts[e.fromName]=(counts[e.fromName]||0)+1);
+      const counts = {}; myEvents.forEach(e=>counts[e.fromName]=(counts[e.fromName]||0)+1);
       receivedSummaryEl.textContent = Object.keys(counts).map(n=>`${counts[n]}× ${n}`).join(' · ');
-      receivedListEl.innerHTML=''; myEvents.forEach(ev=>{
-        const it = document.createElement('div'); it.className='received-item'; it.innerHTML = `<span>🤗 ${escapeHtml(ev.fromName)}</span><small style="color:var(--muted)">${timeAgo(ev.at)}</small>`;
-        receivedListEl.appendChild(it);
-      });
+      receivedListEl.innerHTML=''; myEvents.forEach(ev=>{ const it=document.createElement('div'); it.className='received-item'; it.innerHTML=`<span>🤗 ${escapeHtml(ev.fromName)}</span><small style="color:var(--muted)">${timeAgo(ev.at)}</small>`; receivedListEl.appendChild(it); });
     }
 
-    function timeAgo(ts){ const s=Math.floor((Date.now()-ts)/1000); if(s<60)return s+'s'; const m=Math.floor(s/60); if(m<60)return m+'m'; const h=Math.floor(m/60); if(h<24) return h+'h'; return Math.floor(h/24)+'j'; }
-
-    function updateHeroTotalDisplay(){ heroTotalCountEl.textContent = heroTotal; }
-
+    function timeAgo(ts){ const s=Math.floor((Date.now()-ts)/1000); if(s<60) return s+'s'; const m=Math.floor(s/60); if(m<60) return m+'m'; const h=Math.floor(m/60); if(h<24) return h+'h'; return Math.floor(h/24)+'j'; }
+    function updateHeroTotalDisplay(){ if (heroTotalCountEl) heroTotalCountEl.textContent = heroTotal; }
     function showEmojiBurst(n){ const emojis=['🤗','💖','✨']; for(let i=0;i<Math.min(n,10);i++){ const el=document.createElement('div'); el.className='emoji-fly'; el.style.left=`calc(50% + ${Math.floor(Math.random()*200-100)}px)`; el.style.bottom=`${110+Math.floor(Math.random()*30)}%`; el.textContent=emojis[Math.floor(Math.random()*emojis.length)]; document.body.appendChild(el); setTimeout(()=>el.style.animationDelay=(i*50)+'ms',10); setTimeout(()=>el.remove(),1400+i*80); } }
 
     // actions
     addFriendBtn && addFriendBtn.addEventListener('click', ()=>{ const name=friendNameInput.value.trim(); if(!name) return; if(friends.some(p=>p.name.toLowerCase()===name.toLowerCase())){ alert('Existe déjà'); friendNameInput.value=''; return; } friends.push({id:uid(),name,count:0}); save(FRIENDS_KEY,friends); friendNameInput.value=''; renderFriends(); });
     friendNameInput && friendNameInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addFriendBtn.click(); }});
+    document.getElementById('selectAll').addEventListener('click', ()=>document.querySelectorAll('.friends-list .sel').forEach(c=>c.checked=true));
+    document.getElementById('clearSel').addEventListener('click', ()=>document.querySelectorAll('.friends-list .sel').forEach(c=>c.checked=false));
+    document.getElementById('hugSelected').addEventListener('click', ()=>{ const ids=Array.from(document.querySelectorAll('.friends-list .sel')).filter(c=>c.checked).map(c=>c.closest('.friend').dataset.id); if(!ids.length){ alert('Aucune personne sélectionnée.'); return; } friends=friends.map(f=>ids.includes(f.id)?{...f,count:(f.count||0)+1}:f); save(FRIENDS_KEY,friends); renderFriends(); showEmojiBurst(6); });
+    document.getElementById('hugAll').addEventListener('click', ()=>{ if(!friends.length){ alert('Aucun·e ami·e'); return; } friends=friends.map(f=>({...f,count:(f.count||0)+1})); save(FRIENDS_KEY,friends); renderFriends(); showEmojiBurst(6); });
+    document.getElementById('resetAll').addEventListener('click', ()=>{ friends=friends.map(f=>({...f,count:0})); events=[]; heroTotal=0; save(FRIENDS_KEY,friends); save(EVENTS_KEY,events); saveRaw(HERO_KEY,heroTotal); renderFriends(); renderReceived(); updateHeroTotalDisplay(); });
 
-    selectAllBtn && selectAllBtn.addEventListener('click', ()=>document.querySelectorAll('.friends-list .sel').forEach(c=>c.checked=true));
-    clearSelBtn && clearSelBtn.addEventListener('click', ()=>document.querySelectorAll('.friends-list .sel').forEach(c=>c.checked=false));
-
-    hugSelectedBtn && hugSelectedBtn.addEventListener('click', ()=>{
-      const ids = Array.from(document.querySelectorAll('.friends-list .sel')).filter(c=>c.checked).map(c=>c.closest('.friend').dataset.id);
-      if(!ids.length){ alert('Aucune personne sélectionnée.'); return; }
-      friends = friends.map(f=>ids.includes(f.id)?{...f,count:(f.count||0)+1}:f); total+=ids.length; save(FRIENDS_KEY,friends); saveRaw(TOTAL_KEY,total); renderFriends(); showEmojiBurst(6);
-    });
-
-    hugAllBtn && hugAllBtn.addEventListener('click', ()=>{ if(!friends.length){ alert('Aucun·e ami·e'); return; } const ids=friends.map(f=>f.id); friends=friends.map(f=>({...f,count:(f.count||0)+1})); total+=ids.length; save(FRIENDS_KEY,friends); saveRaw(TOTAL_KEY,total); renderFriends(); showEmojiBurst(6); });
-
-    resetAllBtn && resetAllBtn.addEventListener('click', ()=>{ friends=friends.map(f=>({...f,count:0})); total=0; heroTotal=0; save(FRIENDS_KEY,friends); saveRaw(TOTAL_KEY,total); saveRaw(HERO_KEY,heroTotal); renderFriends(); renderReceived(); updateHeroTotalDisplay(); });
-
-    heroBtn && heroBtn.addEventListener('click', ()=>{ const ids=Array.from(document.querySelectorAll('.friends-list .sel')).filter(c=>c.checked).map(c=>c.closest('.friend').dataset.id); if(ids.length>0){ friends=friends.map(f=>ids.includes(f.id)?{...f,count:(f.count||0)+1}:f); total+=ids.length; save(FRIENDS_KEY,friends); saveRaw(TOTAL_KEY,total); renderFriends(); showEmojiBurst(6); } else { heroTotal+=1; saveRaw(HERO_KEY,heroTotal); updateHeroTotalDisplay(); showEmojiBurst(6); } });
-
-    // storage sync for events and user
-    window.addEventListener('storage', e=>{
-      if(e.key===EVENTS_KEY){ events = load(EVENTS_KEY, []); renderReceived(); }
-      if(e.key===FRIENDS_KEY){ friends = load(FRIENDS_KEY, []); renderFriends(); }
-      if(e.key===HERO_KEY){ heroTotal = loadRaw(HERO_KEY,0); updateHeroTotalDisplay(); }
-    });
+    // storage sync
+    window.addEventListener('storage', e=>{ if(e.key===EVENTS_KEY){ events = load(EVENTS_KEY, []); renderReceived(); } if(e.key===FRIENDS_KEY){ friends = load(FRIENDS_KEY, []); renderFriends(); } if(e.key===HERO_KEY){ heroTotal = loadRaw(HERO_KEY,0); updateHeroTotalDisplay(); } });
 
     // init
-    updateHeroTotalDisplay();
-    renderFriends();
-    renderReceived();
-    document.getElementById('year').textContent=new Date().getFullYear();
+    updateHeroTotalDisplay(); renderFriends(); renderReceived(); document.getElementById('year').textContent = new Date().getFullYear();
   });
   </script>
 </body>
