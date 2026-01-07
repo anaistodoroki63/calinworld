@@ -301,7 +301,7 @@
     <div class="modal" role="document" aria-labelledby="authTitle">
       <h3 id="authTitle">Se connecter</h3>
       <p class="small" style="margin-top:0">Entrez votre pseudo (il sera stocké localement)</p>
-      <input id="authName" placeholder="Ton pseudo (ex: Emma)" aria-label="Pseudo">
+      <input id="authName" placeholder="Ton pseudo" aria-label="Pseudo">
       <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem">
         <button id="authCancel" class="btn-ghost" type="button">Annuler</button>
         <button id="authSubmit" class="cta" type="button">Se connecter</button>
@@ -427,7 +427,7 @@
 
       // If empty, add demo friends so the list is visible immediately
       if (friends.length === 0){
-        friends = [{ id: uid(), name: 'Emma', count: 0 }, { id: uid(), name: 'Lucas', count: 0 }];
+        friends = [{ id: uid(), name: '', count: 0 }, { id: uid(), name: 'Lucas', count: 0 }];
         saveFriends(friends);
       }
 
