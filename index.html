@@ -163,6 +163,17 @@
     .friends-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem}
     .btn-ghost{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:.4rem .65rem;border-radius:8px;cursor:pointer}
 
+    /* Received hugs box */
+    .received-card{
+      margin-top:10px;
+      background:#fff;
+      border-radius:10px;
+      padding:.6rem;
+      border:1px solid rgba(0,0,0,0.04);
+    }
+    .received-list{max-height:180px;overflow:auto;margin-top:.5rem;display:flex;flex-direction:column;gap:.4rem}
+    .received-item{font-size:.95rem;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.35rem;border-radius:8px}
+
     /* modal auth */
     .modal-backdrop{
       position:fixed;inset:0;background:rgba(12,12,12,0.45);display:none;align-items:center;justify-content:center;z-index:120;
@@ -281,6 +292,13 @@
           <button id="hugAll" class="btn-ghost" type="button">Câliner tous</button>
           <button id="resetAll" class="btn-ghost" type="button">Réinitialiser compteurs</button>
         </div>
+
+        <!-- Received hugs for current user -->
+        <div class="received-card" id="receivedCard" aria-live="polite">
+          <strong>Mes câlins reçus</strong>
+          <div id="receivedSummary" class="small" style="margin-top:.4rem;color:var(--muted)">Aucun</div>
+          <div class="received-list" id="receivedList" style="margin-top:.5rem"></div>
+        </div>
       </aside>
     </section>
 
@@ -367,9 +385,11 @@
       authBtn && authBtn.addEventListener('click', ()=>{
         const user = getCurrentUser();
         if (user && user.name){
-          // logged in -> logout immediately (no confirmation)
+          // logout immediately (no confirmation)
           setCurrentUser(null);
           renderAuth();
+          // notify other tabs
+          localStorage.removeItem('calin_user_v1');
         } else {
           openModal();
         }
@@ -399,12 +419,14 @@
     })();
 
     // -----------------------
-    // MAIN app (friends + hugs)
+    // MAIN app (friends + hugs + incoming)
     // -----------------------
     document.addEventListener('DOMContentLoaded', () => {
       // Keys
       const FRIENDS_KEY = 'calin_friends_v1';
       const TOTAL_KEY = 'calin_total_v1';
+      const EVENTS_KEY = 'calin_hug_events_v1'; // store hug events (who -> who)
+      const HERO_KEY = 'calin_hero_total_v1';
 
       // Elements
       const friendNameInput = document.getElementById('friendName');
@@ -419,15 +441,24 @@
       const heroTotalCountEl = document.getElementById('heroTotalCount');
       const friendsTitle = document.getElementById('friendsTitle');
 
-      // State
+      const receivedListEl = document.getElementById('receivedList');
+      const receivedSummaryEl = document.getElementById('receivedSummary');
+
+      // State helpers
       function loadFriends(){ try { return JSON.parse(localStorage.getItem(FRIENDS_KEY) || '[]'); } catch(e){ return []; } }
       function saveFriends(f){ localStorage.setItem(FRIENDS_KEY, JSON.stringify(f)); }
       function loadTotal(){ return parseInt(localStorage.getItem(TOTAL_KEY) || '0', 10); }
       function saveTotal(){ localStorage.setItem(TOTAL_KEY, String(total)); }
+      function loadEvents(){ try { return JSON.parse(localStorage.getItem(EVENTS_KEY) || '[]'); } catch(e){ return []; } }
+      function saveEvents(e){ localStorage.setItem(EVENTS_KEY, JSON.stringify(e)); }
+      function loadHeroTotal(){ return parseInt(localStorage.getItem(HERO_KEY) || '0', 10); }
+      function saveHeroTotal(v){ localStorage.setItem(HERO_KEY, String(v)); }
+
       function uid(){ return 'f_' + Math.random().toString(36).slice(2,9); }
 
       let friends = loadFriends();
       let total = loadTotal();
+      let events = loadEvents(); // {id, fromId, fromName, toName, at}
 
       // If empty, add demo friends so the list is visible immediately
       if (friends.length === 0){
@@ -437,12 +468,14 @@
 
       function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
 
+      // Render friends list (adds "Câline-moi" button per friend)
       function renderFriends(){
         if (!friendsListEl) return;
         friendsListEl.innerHTML = '';
         if (friends.length === 0){
           friendsListEl.innerHTML = '<div class="small" style="text-align:center;padding:.8rem;color:var(--muted)">Aucun·e ami·e — ajoute en un·e ci‑dessous.</div>';
           updateHeroTotal();
+          renderReceived();
           return;
         }
         friends.forEach(f => {
@@ -458,34 +491,97 @@
             </div>
             <div class="controls">
               <div class="count-badge" aria-live="polite">${f.count}</div>
+              <button class="btn-ghost btn-hugme" title="Recevoir un câlin de ${escapeHtml(f.name)}" aria-label="Câlin de ${escapeHtml(f.name)}">Câline‑moi</button>
               <button class="btn-ghost btn-remove" title="Supprimer ${escapeHtml(f.name)}" aria-label="Supprimer">✖</button>
             </div>
           `;
           const removeBtn = el.querySelector('.btn-remove');
+          const hugMeBtn = el.querySelector('.btn-hugme');
           const checkbox = el.querySelector('.sel');
+
           // remove without confirmation
           removeBtn && removeBtn.addEventListener('click', ()=>{
             friends = friends.filter(x => x.id !== f.id);
             saveFriends(friends);
             renderFriends();
           });
+
+          // when a friend "hugs me" (simulate friend sending a hug to current user)
+          hugMeBtn && hugMeBtn.addEventListener('click', ()=>{
+            const user = window.getCurrentUser ? window.getCurrentUser() : null;
+            if (!user || !user.name){
+              // prompt login
+              const authBtn = document.getElementById('authBtn');
+              authBtn && authBtn.click();
+              return;
+            }
+            // record event: from f -> to current user
+            const ev = { id: 'e_' + Math.random().toString(36).slice(2,9), fromId: f.id, fromName: f.name, toName: user.name, at: Date.now() };
+            events.unshift(ev); // newest first
+            saveEvents(events);
+            // increment hero (received) total and show
+            let heroTotal = loadHeroTotal();
+            heroTotal += 1;
+            saveHeroTotal(heroTotal);
+            updateHeroTotalDisplay(heroTotal);
+            renderReceived(); // refresh received panel
+            // also show burst and small animation
+            showEmojiBurst(4);
+          });
+
           checkbox && checkbox.addEventListener('change', updateSelectedCount);
           friendsListEl.appendChild(el);
         });
         updateSelectedCount();
         updateHeroTotal();
+        renderReceived();
       }
 
-      function getSelectedIds(){
-        if (!friendsListEl) return [];
-        const checks = Array.from(friendsListEl.querySelectorAll('.sel'));
-        return checks.filter(c=>c.checked).map(c => c.closest('.friend').dataset.id);
-      }
-      function updateSelectedCount(){
-        const n = getSelectedIds().length;
-        if (friendsTitle) friendsTitle.textContent = `Liste d'ami·e·s${n ? ' — ' + n + ' sélectionné'+(n>1?'·e·s':'') : ''}`;
+      // Received panel: show events where toName === current user
+      function renderReceived(){
+        const user = window.getCurrentUser ? window.getCurrentUser() : null;
+        if (!receivedListEl || !receivedSummaryEl) return;
+        if (!user || !user.name){
+          receivedSummaryEl.textContent = 'Connecte-toi pour voir tes câlins reçus';
+          receivedListEl.innerHTML = '';
+          return;
+        }
+        const myName = user.name;
+        const myEvents = events.filter(e => e.toName === myName).slice(0, 20); // recent 20
+        if (myEvents.length === 0){
+          receivedSummaryEl.textContent = 'Aucun câlin reçu pour l’instant';
+          receivedListEl.innerHTML = '';
+          return;
+        }
+        // summary counts by friend
+        const counts = {};
+        myEvents.forEach(e => counts[e.fromName] = (counts[e.fromName]||0)+1);
+        const summaryParts = Object.keys(counts).map(n => `${counts[n]}× ${n}`);
+        receivedSummaryEl.textContent = summaryParts.join(' · ');
+
+        // list items (newest first)
+        receivedListEl.innerHTML = '';
+        myEvents.forEach(ev => {
+          const item = document.createElement('div');
+          item.className = 'received-item';
+          item.innerHTML = `<span>🤗 ${escapeHtml(ev.fromName)}</span><small style="color:var(--muted)">${timeAgo(ev.at)}</small>`;
+          receivedListEl.appendChild(item);
+        });
       }
 
+      // time ago helper
+      function timeAgo(ts){
+        const s = Math.floor((Date.now()-ts)/1000);
+        if (s < 60) return `${s}s`;
+        const m = Math.floor(s/60);
+        if (m < 60) return `${m}m`;
+        const h = Math.floor(m/60);
+        if (h < 24) return `${h}h`;
+        const d = Math.floor(h/24);
+        return `${d}j`;
+      }
+
+      // Add friend
       function addFriend(){
         if (!friendNameInput) return;
         const name = friendNameInput.value.trim();
@@ -506,20 +602,18 @@
         if (e.key === 'Enter'){ e.preventDefault(); addFriend(); }
       });
 
-      function showEmojiBurst(n){
-        const emojis = ['🤗','💖','✨','🤍'];
-        for (let i=0;i<Math.min(n,12);i++){
-          const el = document.createElement('div');
-          el.className = 'emoji-fly';
-          el.style.left = `calc(50% + ${Math.floor(Math.random()*240 - 120)}px)`;
-          el.style.bottom = `${110 + Math.floor(Math.random()*30)}%`;
-          el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
-          document.body.appendChild(el);
-          setTimeout(()=> el.style.animationDelay = (i*40)+'ms', 10);
-          setTimeout(()=> el.remove(), 1500 + i*80);
-        }
+      // Selection helpers
+      function getSelectedIds(){
+        if (!friendsListEl) return [];
+        const checks = Array.from(friendsListEl.querySelectorAll('.sel'));
+        return checks.filter(c=>c.checked).map(c => c.closest('.friend').dataset.id);
+      }
+      function updateSelectedCount(){
+        const n = getSelectedIds().length;
+        if (friendsTitle) friendsTitle.textContent = `Liste d'ami·e·s${n ? ' — ' + n + ' sélectionné'+(n>1?'·e·s':'') : ''}`;
       }
 
+      // Hug logic: send hug(s) to friends (they receive)
       function hugIds(ids){
         if (!ids || ids.length === 0) return;
         friends = friends.map(f => ids.includes(f.id) ? {...f, count: (f.count||0)+1} : f );
@@ -538,7 +632,8 @@
         if (friends.length === 0){ alert('Aucun·e ami·e à câliner.'); return; }
         hugIds(friends.map(f=>f.id));
       });
-      // reset without confirmation
+
+      // Reset without confirmation
       resetAllBtn && resetAllBtn.addEventListener('click', ()=>{
         friends = friends.map(f => ({...f, count:0}));
         total = 0;
@@ -546,20 +641,45 @@
         renderFriends();
       });
 
-      // hero button behavior
+      // Hero button behavior:
+      // If friends selected: send hugs to them (they receive).
+      // Else: increment heroTotal (hugs you received from "public" / others)
       heroBtn && heroBtn.addEventListener('click', ()=>{
         const ids = getSelectedIds();
-        if (ids.length > 0) hugIds(ids);
-        else {
-          total += 1;
-          saveTotal();
-          updateHeroTotal();
+        if (ids.length > 0){
+          hugIds(ids);
+        } else {
+          // increment hero received (simulate you getting a hug)
+          let heroTotal = loadHeroTotal();
+          heroTotal += 1;
+          saveHeroTotal(heroTotal);
+          updateHeroTotalDisplay(heroTotal);
           showEmojiBurst(6);
         }
       });
 
       function updateHeroTotal(){
-        if (heroTotalCountEl) heroTotalCountEl.textContent = total;
+        // legacy: set hero total from HERO_KEY if any
+        const v = loadHeroTotal();
+        updateHeroTotalDisplay(v);
+      }
+      function updateHeroTotalDisplay(v){
+        if (heroTotalCountEl) heroTotalCountEl.textContent = v;
+      }
+
+      // show emoji burst
+      function showEmojiBurst(n){
+        const emojis = ['🤗','💖','✨','🤍'];
+        for (let i=0;i<Math.min(n,12);i++){
+          const el = document.createElement('div');
+          el.className = 'emoji-fly';
+          el.style.left = `calc(50% + ${Math.floor(Math.random()*240 - 120)}px)`;
+          el.style.bottom = `${110 + Math.floor(Math.random()*30)}%`;
+          el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+          document.body.appendChild(el);
+          setTimeout(()=> el.style.animationDelay = (i*40)+'ms', 10);
+          setTimeout(()=> el.remove(), 1500 + i*80);
+        }
       }
 
       // select/clear
@@ -572,13 +692,17 @@
         updateSelectedCount();
       });
 
-      // storage sync
+      // storage sync (events/friends/total/hero)
       window.addEventListener('storage', e=>{
         if (e.key === FRIENDS_KEY){
           friends = loadFriends();
           renderFriends();
         } else if (e.key === TOTAL_KEY){
           total = loadTotal();
+        } else if (e.key === EVENTS_KEY){
+          events = loadEvents();
+          renderReceived();
+        } else if (e.key === HERO_KEY){
           updateHeroTotal();
         }
       });
