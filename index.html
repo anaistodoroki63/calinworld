@@ -114,30 +114,7 @@
     try { const payload = token.split('.')[1]; const json = atob(payload.replace(/-/g,'+').replace(/_/g,'/')); return JSON.parse(decodeURIComponent(escape(json))); } catch(e){ return null; }
   }
 
-  // Auth (Google + Email)
- <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyAJ9Cn4YVIw5SgKmJ31BJCq8Dx6sGdYbLc",
-    authDomain: "calinworld-568d1.firebaseapp.com",
-    projectId: "calinworld-568d1",
-    storageBucket: "calinworld-568d1.firebasestorage.app",
-    messagingSenderId: "474110538958",
-    appId: "1:474110538958:web:79df0acd2cb3f7dbc0cc9f",
-    measurementId: "G-VZHQPL4CDC"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
+ 
 
     function getCurrentUser(){ try { const raw = localStorage.getItem(AUTH_KEY); return raw ? JSON.parse(raw) : null; } catch(e){ return null; } }
     function setCurrentUser(u){ if (!u) localStorage.removeItem(AUTH_KEY); else localStorage.setItem(AUTH_KEY, JSON.stringify(u)); }
@@ -266,5 +243,29 @@
     updateHeroTotalDisplay(); renderFriends(); renderReceived(); document.getElementById('year').textContent = new Date().getFullYear();
   });
   </script>
+   // Auth (Google + Email)
+ <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyAJ9Cn4YVIw5SgKmJ31BJCq8Dx6sGdYbLc",
+    authDomain: "calinworld-568d1.firebaseapp.com",
+    projectId: "calinworld-568d1",
+    storageBucket: "calinworld-568d1.firebasestorage.app",
+    messagingSenderId: "474110538958",
+    appId: "1:474110538958:web:79df0acd2cb3f7dbc0cc9f",
+    measurementId: "G-VZHQPL4CDC"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 </body>
 </html>
