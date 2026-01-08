@@ -33,6 +33,12 @@
     @media (max-width:900px){ .hero{flex-direction:column} .friends-card{width:100%} }
   </style>
 </head>
+  <div id="gSignInContainer" style="margin-top:20px;"></div>
+  <!-- Google Sign-in script -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<!-- Ton script -->
+<script src="auth.js"></script>
 <body>
   <header class="container">
     <a class="brand" href="#"><img src="https://via.placeholder.com/56x56.png?text=❤" alt="" style="width:44px;border-radius:8px"><strong>CalinWorld</strong></a>
@@ -263,9 +269,11 @@
     measurementId: "G-VZHQPL4CDC"
   };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
+<footer>© 2026 CalinWorld</footer>
+
+<div id="gSignInContainer"></div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="auth.js"></script>
 </body>
 </html>
