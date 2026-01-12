@@ -1,113 +1,67 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CâlinWorld 🌸</title>
-
-<style>
-body {
-  font-family: 'Comic Sans MS', Arial, sans-serif;
-  background: linear-gradient(135deg, #ffd6e8, #ffe4f2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  margin: 0;
-}
-.container {
-  background: white;
-  padding: 25px;
-  border-radius: 25px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  text-align: center;
-  width: 90%;
-  max-width: 420px;
-}
-button {
-  margin-top: 10px;
-  border: none;
-  padding: 12px 22px;
-  border-radius: 20px;
-  background: #ff69b4;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-}
-#googleLogin {
-  margin: 15px 0;
-}
-</style>
-</head>
-<body>
-
-<div class="container">
-
-<h1>CâlinWorld 🌸</h1>
-<p>Connecte-toi pour envoyer des câlins kawaii 🤗</p>
-
-<!-- Champ infos -->
-<div id="userInfo"></div>
-
-<!-- Conteneur Google -->
-<div id="googleLogin"></div>
-
-<!-- Bouton déconnexion -->
-<button id="logoutBtn" style="display:none;">Se déconnecter</button>
-
-</div>
-
-<!-- Google Sign-In SDK -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-
 <script>
-let currentUser = null;
+const sound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_4b6c1d1e61.mp3?filename=cat-meow-14536.mp3");
+const hug = document.getElementById("hug");
+const log = document.getElementById("log");
+const cat = document.getElementById("cat");
+const counter = document.getElementById("counter");
 
-// ⛔ REMPLACE ICI PAR TON CLIENT ID GOOGLE
-const GOOGLE_CLIENT_ID = "rjh19r5itlelhno0vgendabkjrh5tb8o.apps.googleusercontent.com";
+// Structure stockage:
+// calins = { "Anais": { sent: 3, received: 5 }, ... }
+let calins = JSON.parse(localStorage.getItem("calins")) || {};
 
-function handleCredentialResponse(response) {
-  const data = parseJwt(response.credential);
-  currentUser = { name: data.name, email: data.email, picture: data.picture };
-  renderUser();
-}
-
-function renderUser() {
-  const userBox = document.getElementById("userInfo");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const googleDiv = document.getElementById("googleLogin");
-
-  if(currentUser) {
-    userBox.innerHTML = `
-      <img src="${currentUser.picture}" width="60" style="border-radius:50%;"><br>
-      Bonjour ${currentUser.name} 💖<br>
-      <small>${currentUser.email}</small>
-    `;
-    googleDiv.style.display = "none";
-    logoutBtn.style.display = "inline-block";
-  } else {
-    userBox.innerHTML = "";
-    logoutBtn.style.display = "none";
-    googleDiv.style.display = "block";
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleCredentialResponse
-    });
-    google.accounts.id.renderButton(googleDiv, { theme: "outline", size: "large", width: 300 });
+function getUser(name) {
+  if (!calins[name]) {
+    calins[name] = { sent: 0, received: 0 };
   }
+  return calins[name];
 }
 
-function parseJwt(token) {
-  return JSON.parse(atob(token.split('.')[1]));
+function updateStorage() {
+  localStorage.setItem("calins", JSON.stringify(calins));
 }
 
-document.getElementById("logoutBtn").onclick = () => {
-  currentUser = null;
-  renderUser();
-};
+function updateCounter() {
+  let txt = "";
+  for (let user in calins) {
+    txt += `🐱 ${user} → envoyés: ${calins[user].sent}, reçus: ${calins[user].received}<br>`;
+  }
+  counter.innerHTML = txt;
+}
 
-window.onload = () => renderUser();
+function envoyerCalin() {
+  const user = document.getElementById("username").value.trim();
+  const target = document.getElementById("target").value.trim();
+
+  if (!user || !target) {
+    alert("Entre les deux pseudos 🥺");
+    return;
+  }
+
+  if (user === target) {
+    alert("Tu peux pas te faire un câlin à toi-même 😹");
+    return;
+  }
+
+  const fromUser = getUser(user);
+  const toUser = getUser(target);
+
+  fromUser.sent++;
+  toUser.received++;
+  updateStorage();
+  updateCounter();
+
+  const cats = ["🐱💗", "😺✨", "🐱🌸", "😽💕", "🐈💖"];
+  cat.textContent = cats[Math.floor(Math.random() * cats.length)];
+  cat.style.display = "block";
+  sound.currentTime = 0;
+  sound.play();
+
+  hug.textContent = "🤗💖🤗";
+
+  const message = document.createElement("div");
+  message.textContent = `🌸 ${user} a fait un câlin à ${target}`;
+  log.prepend(message);
+}
+
+updateCounter();
 </script>
-
-</body>
-</html>
