@@ -1,4 +1,4 @@
-const GOOGLE_CLIENT_ID = "TON_CLIENT_ID";
+const GOOGLE_CLIENT_ID = "rjh19r5itlelhno0vgendabkjrh5tb8o.apps.googleusercontent.com";
 
 // =============== JWT decode ===============
 function decodeJwtPayload(token){
