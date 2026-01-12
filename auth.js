@@ -1,5 +1,3 @@
-const GOOGLE_CLIENT_ID = "rjh19r5itlelhno0vgendabkjrh5tb8o.apps.googleusercontent.com";
-
 // =============== JWT decode ===============
 function decodeJwtPayload(token){
     return JSON.parse(atob(token.split('.')[1]));
@@ -40,21 +38,6 @@ function handleCredentialResponse(response){
     localStorage.setItem(AUTH_KEY, JSON.stringify(user));
 }
 
-// =============== Google Sign-in Init ===============
-function initGoogleSignIn(){
-    if(!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes("TON_CLIENT_ID")){
-        console.warn("⚠️ Ajoute ton Google Client ID dans auth.js");
-        return;
-    }
-    google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleCredentialResponse
-    });
-    google.accounts.id.renderButton(
-        document.getElementById('gSignInContainer'),
-        { theme: 'outline', size: 'large', width:'100%' }
-    );
-}
 
 // =============== Events ===============
 window.getCurrentUser = getCurrentUser;
