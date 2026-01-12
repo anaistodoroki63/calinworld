@@ -1,3 +1,4 @@
+
 // =============== JWT decode ===============
 function decodeJwtPayload(token){
     return JSON.parse(atob(token.split('.')[1]));
