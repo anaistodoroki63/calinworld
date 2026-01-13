@@ -83,6 +83,21 @@ button {
   <button onclick="logout()">Déconnexion 🚪</button>
 </div>
 
+  <script>
+function afficherBox(b) {
+  amisBox.style.display = "none";
+  calinsBox.style.display = "none";
+  classementBox.style.display = "none";
+  badgesBox.style.display = "none";
+  if (b) document.getElementById(b).style.display = "block";
+}
+
+function ouvrirAmis(){ afficherBox("amisBox"); }
+function ouvrirCalins(){ afficherBox("calinsBox"); }
+function ouvrirClassement(){ afficherBox("classementBox"); }
+function ouvrirBadges(){ afficherBox("badgesBox"); }
+</script>
+  
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
