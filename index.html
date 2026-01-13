@@ -164,6 +164,12 @@ auth.onAuthStateChanged(user => {
   } else {
     authBox.style.display = "block";
     userBox.style.display = "none";
+    pseudoDisplay.textContent = doc.data().pseudo;
+    statsBox.innerHTML = `
+  🫂 Amis : ${doc.data().friends.length}<br>
+  🤗 Câlins envoyés : ${doc.data().hugsSent}<br>
+  💖 Câlins reçus : ${doc.data().hugsReceived}
+`;
   }
 });
 </script>
