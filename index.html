@@ -63,10 +63,19 @@ button {
     <button onclick="login()">Connexion 🤗</button>
   </div>
 
-  <div id="userBox">
-    <h3>Bienvenue <span id="pseudoDisplay"></span> 😽</h3>
-    <button onclick="logout()">Déconnexion 🚪</button>
+<div id="userBox">
+  <h2>Bienvenue <span id="pseudoDisplay"></span> 😽</h2>
+
+  <div id="statsBox"></div>
+  <div style="margin-top:10px;">
+    <button onclick="ouvrirAmis()">👫 Amis</button>
+    <button onclick="ouvrirCalins()">🤗 Câlins</button>
+    <button onclick="ouvrirClassement()">🌟 Classement</button>
+    <button onclick="ouvrirBadges()">🏆 Badges</button>
   </div>
+
+  <br>
+  <button onclick="logout()">Déconnexion 🚪</button>
 </div>
 
 <!-- Firebase -->
