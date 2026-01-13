@@ -1,77 +1,142 @@
-<script>
-const sound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_4b6c1d1e61.mp3?filename=cat-meow-14536.mp3");
-const hug = document.getElementById("hug");
-const log = document.getElementById("log");
-const cat = document.getElementById("cat");
-const counter = document.getElementById("counter");
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>CâlinWorld 🌸</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-// Structure stockage:
-// calins = { "Anais": { sent: 3, received: 5 }, ... }
-let calins = JSON.parse(localStorage.getItem("calins")) || {};
-
-function getUser(name) {
-  if (!calins[name]) {
-    calins[name] = { sent: 0, received: 0 };
-  }
-  return calins[name];
+<style>
+body {
+  font-family: 'Comic Sans MS', Arial, sans-serif;
+  background: linear-gradient(135deg, #ffd6e8, #ffe4f2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
 }
-
-function updateStorage() {
-  localStorage.setItem("calins", JSON.stringify(calins));
+.container {
+  background: white;
+  border-radius: 25px;
+  padding: 25px;
+  width: 90%;
+  max-width: 450px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
-
-function updateCounter() {
-  let txt = "";
-  for (let user in calins) {
-    txt += `🐱 ${user} → envoyés: ${calins[user].sent}, reçus: ${calins[user].received}<br>`;
-  }
-  counter.innerHTML = txt;
+input {
+  width: 90%;
+  padding: 10px;
+  margin: 6px 0;
+  border-radius: 15px;
+  border: 2px solid #ffb6c1;
 }
-
-function envoyerCalin() {
-  const user = document.getElementById("username").value.trim();
-  const target = document.getElementById("target").value.trim();
-
-  if (!user || !target) {
-    alert("Entre les deux pseudos 🥺");
-    return;
-  }
-
-  if (user === target) {
-    alert("Tu peux pas te faire un câlin à toi-même 😹");
-    return;
-  }
-
-  const fromUser = getUser(user);
-  const toUser = getUser(target);
-
-  fromUser.sent++;
-  toUser.received++;
-  updateStorage();
-  updateCounter();
-
-  const cats = ["🐱💗", "😺✨", "🐱🌸", "😽💕", "🐈💖"];
-  cat.textContent = cats[Math.floor(Math.random() * cats.length)];
-  cat.style.display = "block";
-  sound.currentTime = 0;
-  sound.play();
-
-  hug.textContent = "🤗💖🤗";
-
-  const message = document.createElement("div");
-  message.textContent = `🌸 ${user} a fait un câlin à ${target}`;
-  log.prepend(message);
+button {
+  background: #ff69b4;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  margin-top: 10px;
+  border-radius: 20px;
+  cursor: pointer;
 }
+#userBox { display:none; margin-top:10px; }
+</style>
+</head>
 
-updateCounter();
-</script>
-<input id="username" placeholder="Ton pseudo 💕">
-<input id="target" placeholder="Pseudo à câliner 🫂">
-<button onclick="envoyerCalin()">Donner un câlin 🤗</button>
-
-<div id="hug"></div>
-<div id="cat" style="display:none;"></div>
-<div id="counter"></div>
-<div id="log"></div>
 <body>
-  
+<div class="container">
+  <h1>CâlinWorld 🌸</h1>
+
+  <div id="authBox">
+    <h3>Créer un compte</h3>
+    <input id="emailRegister" type="email" placeholder="Email 💌">
+    <input id="passwordRegister" type="password" placeholder="Mot de passe 🔒">
+    <input id="pseudoRegister" placeholder="Pseudo kawaii 🐱">
+    <button onclick="register()">Créer un compte ✨</button>
+
+    <hr>
+
+    <h3>Connexion</h3>
+    <input id="emailLogin" type="email" placeholder="Email 💌">
+    <input id="passwordLogin" type="password" placeholder="Mot de passe 🔒">
+    <button onclick="login()">Connexion 🤗</button>
+  </div>
+
+  <div id="userBox">
+    <h3>Bienvenue <span id="pseudoDisplay"></span> 😽</h3>
+    <button onclick="logout()">Déconnexion 🚪</button>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "A_COMPLETER",
+  authDomain: "A_COMPLETER",
+  projectId: "A_COMPLETER",
+  storageBucket: "A_COMPLETER",
+  messagingSenderId: "A_COMPLETER",
+  appId: "A_COMPLETER"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Création de compte
+function register() {
+  const email = emailRegister.value;
+  const password = passwordRegister.value;
+  const pseudo = pseudoRegister.value;
+
+  auth.createUserWithEmailAndPassword(email, password)
+  .then(() => {
+    db.collection("users").doc(email).set({
+      email,
+      pseudo,
+      hugsSent: 0,
+      hugsReceived: 0,
+      badges: [],
+      friends: [],
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert("Compte créé 🎉 Bienvenue " + pseudo + " !");
+  })
+  .catch(err => alert(err.message));
+}
+
+// Connexion
+function login() {
+  const email = emailLogin.value;
+  const password = passwordLogin.value;
+  auth.signInWithEmailAndPassword(email, password)
+  .catch(err => alert(err.message));
+}
+
+// Déconnexion
+function logout() {
+  auth.signOut();
+}
+
+// Suivi état utilisateur
+auth.onAuthStateChanged(user => {
+  if (user) {
+    db.collection("users").doc(user.email).get().then(doc => {
+      pseudoDisplay.textContent = doc.data().pseudo;
+    });
+    authBox.style.display = "none";
+    userBox.style.display = "block";
+  } else {
+    authBox.style.display = "block";
+    userBox.style.display = "none";
+  }
+});
+</script>
+</body>
+</html>
