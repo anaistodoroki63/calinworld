@@ -6,32 +6,40 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+
+/* ============================ */
+/*      STYLE GLOBAL KAWAII      */
+/* ============================ */
+
 body {
-  font-family: 'Comic Sans MS', Arial, sans-serif;
-  background: linear-gradient(135deg, #ffd6e8, #ffe4f2);
   margin:0;
   padding:0;
+  font-family: 'Comic Sans MS', sans-serif;
+  background: linear-gradient(135deg, #ffd6e8, #ffe4f2);
   display:flex;
   justify-content:center;
   align-items:center;
   min-height:100vh;
 }
+
 .container {
-  width:90%;
+  width:95%;
   max-width:480px;
   background:white;
   border-radius:25px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.15);
   padding:20px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.15);
   text-align:center;
 }
-input {
+
+input, select {
   width:90%;
   padding:10px;
   border-radius:15px;
   border:2px solid #ffb6c1;
   margin:6px 0;
 }
+
 button {
   background:#ff69b4;
   color:white;
@@ -41,144 +49,287 @@ button {
   cursor:pointer;
   margin-top:8px;
 }
-.box {display:none;margin-top:15px;}
-hr {margin:15px 0;}
-.message {margin:4px 0;font-size:14px;}
+
+button:hover {
+  filter:brightness(1.1);
+}
+
+/* panneaux */
+.box { display:none; margin-top:15px; }
+
+/* ============================ */
+/*      AVATARS CHIBI PACK      */
+/* ============================ */
+
+.avatar {
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  margin:4px;
+  border:3px solid #ffb6c1;
+}
+
+.avatar-select {
+  width:72px;
+  height:72px;
+  border-radius:50%;
+  margin:4px;
+  border:4px solid transparent;
+  cursor:pointer;
+}
+
+.avatar-select.selected {
+  border-color:#ff69b4;
+}
+
 </style>
 </head>
-
 <body>
 <div class="container">
-  <h1>Hugsaur 🐱🤍</h1>
 
-  <!-- Auth Box -->
-  <div id="authBox">
-    <h3>Créer un compte</h3>
-    <input id="emailRegister" type="email" placeholder="Email 💌">
-    <input id="passwordRegister" type="password" placeholder="Mot de passe 🔒">
-    <input id="pseudoRegister" placeholder="Pseudo kawaii 🐱">
-    <button onclick="register()">Créer un compte ✨</button>
-    <hr>
-    <h3>Connexion</h3>
-    <input id="emailLogin" type="email" placeholder="Email 💌">
-    <input id="passwordLogin" type="password" placeholder="Mot de passe 🔒">
-    <button onclick="login()">Connexion 🤗</button>
-  </div>
+<h1>Hugsaur 🐱🤍</h1>
 
-  <!-- User Box -->
-  <div id="userBox" style="display:none;">
-    <h2>Bienvenue <span id="pseudoDisplay"></span> 😽</h2>
-    <div id="statsBox"></div>
-    <br>
-    <button onclick="openBox('friendsBox')">👫 Amis</button>
-    <button onclick="openBox('hugBox')">🐱 Câlins</button>
-    <button onclick="openBox('rankBox')">🌟 Classement</button>
-    <button onclick="openBox('badgeBox')">🏆 Badges</button>
-    <button onclick="openBox('chatBox')">💬 Chat</button>
-    <br><br>
-    <button onclick="logout()">Déconnexion 🚪</button>
-  </div>
+  <!-- ============================ -->
+<!-- PACK AVATARS KAWAII CHIBI    -->
+<!-- ============================ -->
 
-  <!-- Friends -->
-  <div id="friendsBox" class="box">
-    <h3>👫 Amis</h3>
-    <input id="amiPseudo" placeholder="Pseudo à ajouter 🐱">
-    <function sendFriendRequest() {
-  const pseudoCible = amiPseudo.value.trim();
-  if (!pseudoCible) return alert("Entre un pseudo 🐱");
-
-  <const email = auth.currentUser.email;
-
-  db.collection("users").doc(email).get().then(doc => {
-    <const pseudoMoi = doc.data().pseudo;
-
-   // vérifier si l'utilisateur existe
-  <  db.collection("users").where("pseudo", "==", pseudoCible).get().then(snap => {
-    <  if (snap.empty) {
-        alert("Ce pseudo n'existe pas encore 😿");
-      <  return;
-      }
-
-      // créer la demande
-    <  db.collection("friendRequests").add({
-    <    from: pseudoMoi,
-        to: pseudoCible,
-        status: "pending",
-    <    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-
-      alert("Demande envoyée 🤝");
-    });
-  });
-}
-  <!-- Hugs -->
-  <div id="hugBox" class="box">
-    <h3>🐱 Demandes de câlins</h3>
-    <button onclick="requestHug()">Demander un câlin 🐱🤍</button>
-    <div id="hugRequests"></div>
-  </div>
-
-  <!-- Ranking -->
-  <div id="rankBox" class="box">
-    <h3>🌟 Classement des câlins</h3>
-    <div id="rankList"></div>
-  </div>
-
-  <!-- Badges -->
-  <div id="badgeBox" class="box">
-    <h3>🏆 Badges</h3>
-    <div id="badgeList"></div>
-  </div>
-
-  <!-- Chat -->
-  <div id="chatBox" class="box">
-    <h3>💬 Chat kawaii</h3>
-    <div id="chatMessages"></div>
-    <input id="chatInput" placeholder="Message 🐾">
-    <button onclick="sendChat()">Envoyer 💌</button>
-  </div>
+<div id="avatarSelection" style="display:none;">
+  <h3>Choisis ton avatar 😺</h3>
+  <div id="avatarList"></div>
+  <button onclick="validerAvatar()">Valider ✨</button>
 </div>
 
-<!-- Firebase -->
+  <script>
+const AVATARS = [
+  { id:"cat_white",  src:"data:image/png;base64,AAAA...==" },
+  { id:"cat_black",  src:"data:image/png;base64,BBBB...==" },
+  { id:"cat_orange", src:"data:image/png;base64,CCCC...==" }
+  // + 7 autres ajoutés partie 3
+];
+</script>
+
+  <!-- ============================ -->
+<!--        AUTH / LOGIN          -->
+<!-- ============================ -->
+
+<div id="authBox">
+  <h3>Créer un compte</h3>
+  <input id="emailRegister" type="email" placeholder="Email 💌">
+  <input id="passwordRegister" type="password" placeholder="Mot de passe 🔒">
+  <input id="pseudoRegister" placeholder="Pseudo kawaii 🐱">
+  <button onclick="register()">Créer ✨</button>
+
+  <hr>
+
+  <h3>Connexion</h3>
+  <input id="emailLogin" type="email" placeholder="Email 💌">
+  <input id="passwordLogin" type="password" placeholder="Mot de passe 🔒">
+  <button onclick="login()">Connexion 🤗</button>
+</div>
+
+
+<!-- ============================ -->
+<!--          DASHBOARD           -->
+<!-- ============================ -->
+
+<div id="userBox" style="display:none;">
+  <img id="myAvatar" class="avatar"><br>
+  <h2><span id="pseudoDisplay"></span> 😽</h2>
+  <div id="statsBox"></div>
+  <br>
+
+  <button onclick="openBox('friendsBox')">👫 Amis</button>
+  <button onclick="openBox('hugBox')">🐱 Câlins</button>
+  <button onclick="openBox('dmBox')">💬 Messages</button>
+  <button onclick="openBox('shopBox')">🎁 Boutique</button>
+  <button onclick="openBox('inventoryBox')">🎒 Inventaire</button>
+  <button onclick="openBox('rankBox')">🌟 Classement</button>
+  <button onclick="openBox('profileBox')">😺 Profil</button>
+  <br><br>
+  <button onclick="logout()">Déconnexion 🚪</button>
+</div>
+
+  <div id="friendsBox" class="box">
+  <h3>👫 Amis</h3>
+  <input id="amiPseudo" placeholder="Pseudo 🐱">
+  <button onclick="sendFriendRequest()">Ajouter 🤝</button>
+  <h4>Demandes reçues :</h4>
+  <div id="friendRequests"></div>
+  <h4>Mes amis :</h4>
+  <div id="friendList"></div>
+</div>
+
+<div id="hugBox" class="box">
+  <h3>🐱 Câlins</h3>
+  <select id="hugTarget"></select>
+  <button onclick="requestHug()">Demander 🐱🤍</button>
+  <h4>Demandes reçues :</h4>
+  <div id="hugRequests"></div>
+</div>
+
+<div id="dmBox" class="box">
+  <h3>💬 Messages privés</h3>
+  <select id="dmTarget"></select>
+  <div id="dmMessages" style="max-height:200px;overflow:auto;"></div>
+  <input id="dmInput" placeholder="Message 🐾">
+  <button onclick="sendDM()">Envoyer 💌</button>
+</div>
+
+<div id="shopBox" class="box">
+  <h3>🎁 Boutique</h3>
+  <div id="shopItems"></div>
+</div>
+
+<div id="inventoryBox" class="box">
+  <h3>🎒 Inventaire</h3>
+  <div id="inventory"></div>
+</div>
+
+<div id="rankBox" class="box">
+  <h3>🌟 Classement</h3>
+  <div id="rankList"></div>
+</div>
+
+<div id="profileBox" class="box">
+  <h3>😺 Profil</h3>
+  <p>Avatar : <img id="profileAvatar" class="avatar"></p>
+  <p>Pseudo : <span id="profilePseudo"></span></p>
+  <p>Bio :</p>
+  <textarea id="profileBio" style="width:90%;height:80px;"></textarea><br>
+  <button onclick="saveBio()">Sauvegarder ✨</button>
+</div>
+
+  <script>
+/* ========================================================= */
+/*                 PACK AVATARS CHIBI (10)                   */
+/* ========================================================= */
+
+const AVATARS = [
+  { id:"cat_white",  src:"data:image/png;base64,iVBORw0KGgoAAA..." },
+  { id:"cat_black",  src:"data:image/png;base64,iVBORw0KGgoAAA..." },
+  { id:"cat_orange", src:"data:image/png;base64,iVBORw0KGgoAAA..." },
+  { id:"cat_gray",   src:"data:image/png;base64,iVBORw0KGgoAAA..." },
+  { id:"cat_calico", src:"data:image/png;base64,iVBORw0KGgoAAA..." },
+  { id:"cat_sakura", src:"data:image/png;base64,iVBORw0KGgoAAA..." },
+  { id:"cat_princess",src:"data:image/png;base64,iVBORw0KGgoAAA..." },
+  { id:"cat_demon",  src:"data:image/png;base64,iVBORw0KGgoAAA..." },
+  { id:"cat_samurai",src:"data:image/png;base64,iVBORw0KGgoAAA..." },
+  { id:"cat_magic",  src:"data:image/png;base64,iVBORw0KGgoAAA..." }
+];
+
+let SELECTED_AVATAR = null;
+
+/* ========================================================= */
+/*                   RENDU SELECTION AVATAR                  */
+/* ========================================================= */
+
+function showAvatarSelection() {
+  authBox.style.display = "none";
+  avatarSelection.style.display = "block";
+
+  avatarList.innerHTML = "";
+  AVATARS.forEach(a=>{
+    const img=document.createElement("img");
+    img.src=a.src;
+    img.className="avatar-select";
+    img.dataset.id=a.id;
+    img.onclick=()=>selectAvatar(img,a.id);
+    avatarList.appendChild(img);
+  });
+}
+
+function selectAvatar(el,id) {
+  SELECTED_AVATAR = id;
+  document.querySelectorAll('.avatar-select').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function validerAvatar() {
+  if(!SELECTED_AVATAR){
+    alert("Choisis un avatar 😺");
+    return;
+  }
+  document.getElementById("registerAvatarFinal").value = SELECTED_AVATAR;
+  avatarSelection.style.display="none";
+  authBox.style.display="block";
+}
+
+/* ========================================================= */
+/*                       EXTRA INPUT HIDDEN                  */
+/* ========================================================= */
+document.write(`<input type="hidden" id="registerAvatarFinal">`);
+</script>
+
+  <!-- ========================================================= -->
+<!--                 FIREBASE + AUTH + USERS                    -->
+<!-- ========================================================= -->
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-/* 🔥 REMPLACER CE BLOC PAR TON CONFIG */
+
+/* ========================================================= */
+/*                 CONFIG FIREBASE (À REMPLACER)             */
+/* ========================================================= */
+
 const firebaseConfig = {
-  apiKey: "AIzaSyAJ9Cn4YVIw5SgKmJ31BJCq8Dx6sGdYbLc",
-  authDomain: "calinworld-568d1.firebaseapp.com",
-  projectId: "calinworld-568d1",
-  storageBucket: "calinworld-568d1.firebasestorage.app",
-  messagingSenderId: "474110538958",
-  appId: "1:474110538958:web:160db43f618b4295c0cc9f"
+  apiKey: "A_COMPLETER",
+  authDomain: "A_COMPLETER",
+  projectId: "A_COMPLETER",
+  storageBucket: "A_COMPLETER",
+  messagingSenderId: "A_COMPLETER",
+  appId: "A_COMPLETER"
 };
-/* 🔥 FIN DU BLOC */
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+
+/* ========================================================= */
+/*                   OPEN PANNEAUX UI                         */
+/* ========================================================= */
 
 function openBox(id){
   document.querySelectorAll('.box').forEach(b=>b.style.display='none');
   document.getElementById(id).style.display='block';
 }
 
+/* ========================================================= */
+/*                       REGISTER                              */
+/* ========================================================= */
+
 function register(){
   const email=emailRegister.value;
   const pass=passwordRegister.value;
-  const pseudo=pseudoRegister.value;
+  const pseudo=pseudoRegister.value.trim();
+  const avatar=registerAvatarFinal.value;
+
+  if(!email||!pass||!pseudo||!avatar){
+    alert("Complète tout 😺");
+    return;
+  }
+
   auth.createUserWithEmailAndPassword(email,pass).then(()=>{
     db.collection("users").doc(email).set({
-      email,pseudo,
-      hugsSent:0,hugsReceived:0,
-      badges:[],friends:[],
+      email,
+      pseudo,
+      avatar,
+      bio:"",
+      title:"Nouveau chaton 🐾",
+      friends:[],
+      hugsSent:0,
+      hugsReceived:0,
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
-    alert("Bienvenue sur Hugsaur 🐱🤍");
+    alert("Compte créé 😽✨");
   }).catch(e=>alert(e.message));
 }
+
+/* ========================================================= */
+/*                       LOGIN                                */
+/* ========================================================= */
 
 function login(){
   auth.signInWithEmailAndPassword(emailLogin.value,passwordLogin.value)
@@ -187,63 +338,148 @@ function login(){
 
 function logout(){auth.signOut();}
 
+/* ========================================================= */
+/*                 ON AUTH CHANGE + RENDU UI                  */
+/* ========================================================= */
+
 auth.onAuthStateChanged(user=>{
   if(!user){
-    authBox.style.display="block";
     userBox.style.display="none";
+    authBox.style.display="block";
     return;
   }
+
   authBox.style.display="none";
   userBox.style.display="block";
 
-  db.collection("users").doc(user.email).onSnapshot(doc=>{
-    const u=doc.data();
-    pseudoDisplay.textContent=u.pseudo;
-    statsBox.innerHTML=`🐱 Amis: ${u.friends.length}<br>🤗 Envoyés: ${u.hugsSent}<br>💖 Reçus: ${u.hugsReceived}`;
+  const email = user.email;
+
+  // Track du profil utilisateur
+  db.collection("users").doc(email).onSnapshot(doc=>{
+    const u = doc.data();
+
+    // pseudo + titre + avatar
+    pseudoDisplay.textContent = u.pseudo;
+    myAvatar.src = AVATARS.find(x=>x.id===u.avatar)?.src || "";
+
+    // stats
+    statsBox.innerHTML = `
+      👫 Amis : ${u.friends.length}<br>
+      🤗 Envoyés : ${u.hugsSent}<br>
+      💖 Reçus : ${u.hugsReceived}
+    `;
+
+    // profil
+    profileAvatar.src = myAvatar.src;
+    profilePseudo.textContent = u.pseudo;
+    profileBio.value = u.bio || "";
   });
 
+  // chargement UI
   loadFriends();
   loadFriendRequests();
-  loadRank();
-  loadBadges();
-  loadChat();
+  loadFriendsForHugs();
+  loadFriendsForDM();
   loadHugRequests();
+  loadRank();
+  loadInventory();
+  loadShop();
 });
 
-/* ==================== AMIS ==================== */
-function sendFriendRequest(){
-  const pseudo=amiPseudo.value.trim();
-  if(!pseudo){alert("Entre un pseudo 🐱");return;}
+/* ========================================================= */
+/*                SAUVEGARDE BIO PROFIL                       */
+/* ========================================================= */
+
+function saveBio(){
   const email=auth.currentUser.email;
+  db.collection("users").doc(email).update({
+    bio:profileBio.value
+  });
+  alert("Bio sauvegardée 😺✨");
+}
+
+</script>
+
+  <script>
+
+/* ========================================================= */
+/*                       MODULE AMIS                         */
+/* ========================================================= */
+
+function sendFriendRequest(){
+  const pseudoCible = amiPseudo.value.trim();
+  if(!pseudoCible){ alert("Entre un pseudo 🐱"); return; }
+
+  const email = auth.currentUser.email;
+
   db.collection("users").doc(email).get().then(doc=>{
-    const mine=doc.data().pseudo;
-    db.collection("friendRequests").add({from:mine,to:pseudo,status:"pending"});
-    alert("Demande envoyée 🤝");
+    const pseudoMoi = doc.data().pseudo;
+
+    if(pseudoMoi === pseudoCible){
+      alert("Tu ne peux pas t'ajouter toi-même 😹");
+      return;
+    }
+
+    db.collection("users").where("pseudo","==",pseudoCible).get().then(snap=>{
+      if(snap.empty){
+        alert("Ce pseudo n'existe pas 😿");
+        return;
+      }
+
+      db.collection("friendRequests").add({
+        from:pseudoMoi,
+        to:pseudoCible,
+        status:"pending",
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      alert("Demande envoyée 🤝");
+    });
   });
 }
 
 function loadFriendRequests(){
   const email=auth.currentUser.email;
   db.collection("users").doc(email).get().then(doc=>{
-    const mine=doc.data().pseudo;
-    db.collection("friendRequests").where("to","==",mine).where("status","==","pending")
-    .onSnapshot(s=>{
-      friendRequests.innerHTML="";
-      s.forEach(d=>{
-        friendRequests.innerHTML+=`${d.data().from} te demande 🥺 
-        <button onclick="acceptFriend('${d.id}','${d.data().from}')">Accepter 💖</button>
-        <button onclick="rejectFriend('${d.id}')">Refuser 😿</button><br>`;
+    const pseudoMoi = doc.data().pseudo;
+
+    db.collection("friendRequests")
+      .where("to","==",pseudoMoi)
+      .where("status","==","pending")
+      .onSnapshot(s=>{
+        friendRequests.innerHTML="";
+        s.forEach(d=>{
+          friendRequests.innerHTML+=`
+            ${d.data().from} veut être ton ami 🐱<br>
+            <button onclick="acceptFriend('${d.id}','${d.data().from}')">Accepter 💖</button>
+            <button onclick="rejectFriend('${d.id}')">Refuser 😿</button>
+            <br><br>
+          `;
+        });
       });
-    });
   });
 }
 
-function acceptFriend(id,from){
+function acceptFriend(id,fromPseudo){
   const email=auth.currentUser.email;
-  db.collection("users").doc(email).update({
-    friends:firebase.firestore.FieldValue.arrayUnion(from)
+
+  db.collection("users").doc(email).get().then(doc=>{
+    const me=doc.data().pseudo;
+
+    db.collection("users").doc(email).update({
+      friends:firebase.firestore.FieldValue.arrayUnion(fromPseudo)
+    });
+
+    db.collection("users").where("pseudo","==",fromPseudo).get().then(snap=>{
+      snap.forEach(u=>{
+        db.collection("users").doc(u.id).update({
+          friends:firebase.firestore.FieldValue.arrayUnion(me)
+        });
+      });
+    });
+
+    db.collection("friendRequests").doc(id).update({status:"accepted"});
   });
-  db.collection("friendRequests").doc(id).update({status:"accepted"});
 }
 
 function rejectFriend(id){
@@ -253,20 +489,38 @@ function rejectFriend(id){
 function loadFriends(){
   const email=auth.currentUser.email;
   db.collection("users").doc(email).onSnapshot(doc=>{
-    friendList.innerHTML=doc.data().friends.map(f=>`🐱 ${f}`).join("<br>");
+    friendList.innerHTML = doc.data().friends.map(f=>`🐱 ${f}`).join("<br>");
   });
 }
 
-/* ==================== CÂLINS ==================== */
+/* ========================================================= */
+/*                    MODULE CÂLINS CIBLÉS                   */
+/* ========================================================= */
+
+function loadFriendsForHugs(){
+  const email=auth.currentUser.email;
+  db.collection("users").doc(email).onSnapshot(doc=>{
+    hugTarget.innerHTML="";
+    doc.data().friends.forEach(f=>{
+      hugTarget.innerHTML+=`<option value="${f}">${f}</option>`;
+    });
+  });
+}
 
 function requestHug(){
   const email=auth.currentUser.email;
+  const target=hugTarget.value;
+  if(!target){ alert("Tu n'as pas d'amis 😿"); return; }
+
   db.collection("users").doc(email).get().then(doc=>{
     const pseudo=doc.data().pseudo;
-    doc.data().friends.forEach(f=>{
-      db.collection("hugRequests").add({from:pseudo,to:f,status:"pending"});
+    db.collection("hugRequests").add({
+      from:pseudo,
+      to:target,
+      status:"pending",
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
-    alert("Demande de câlin envoyée 🐱🤍");
+    alert("Demande de câlin envoyée à "+target+" 🐱🤍");
   });
 }
 
@@ -274,86 +528,154 @@ function loadHugRequests(){
   const email=auth.currentUser.email;
   db.collection("users").doc(email).get().then(doc=>{
     const pseudo=doc.data().pseudo;
-    db.collection("hugRequests").where("to","==",pseudo).where("status","==","pending")
-    .onSnapshot(s=>{
-      hugRequests.innerHTML="";
-      s.forEach(d=>{
-        hugRequests.innerHTML+=`${d.data().from} veut un câlin 🐱🤍 
-        <button onclick="acceptHug('${d.id}','${d.data().from}')">Accepter 💖</button>
-        <button onclick="rejectHug('${d.id}')">Refuser 😿</button><br>`;
+    db.collection("hugRequests")
+      .where("to","==",pseudo)
+      .where("status","==","pending")
+      .onSnapshot(s=>{
+        hugRequests.innerHTML="";
+        s.forEach(d=>{
+          hugRequests.innerHTML+=`
+            ${d.data().from} veut un câlin 🐱🤍<br>
+            <button onclick="acceptHug('${d.id}','${d.data().from}')">Accepter 💖</button>
+            <button onclick="rejectHug('${d.id}')">Refuser 😿</button>
+            <br><br>
+          `;
+        });
       });
-    });
   });
 }
 
 function acceptHug(id,from){
   const email=auth.currentUser.email;
-  db.collection("users").doc(email).get().then(doc=>{
-    const me=doc.data().pseudo;
-    db.collection("users").doc(auth.currentUser.email).update({
-      hugsReceived:firebase.firestore.FieldValue.increment(1)
-    });
-    db.collection("users").where("pseudo","==",from).get().then(snap=>{
-      snap.forEach(u=>{
-        db.collection("users").doc(u.id).update({
-          hugsSent:firebase.firestore.FieldValue.increment(1)
-        });
+
+  db.collection("users").doc(email).update({
+    hugsReceived:firebase.firestore.FieldValue.increment(1)
+  });
+
+  db.collection("users").where("pseudo","==",from).get().then(snap=>{
+    snap.forEach(u=>{
+      db.collection("users").doc(u.id).update({
+        hugsSent:firebase.firestore.FieldValue.increment(1)
       });
     });
-    db.collection("hugRequests").doc(id).update({status:"accepted"});
   });
+
+  db.collection("hugRequests").doc(id).update({status:"accepted"});
 }
 
 function rejectHug(id){
   db.collection("hugRequests").doc(id).update({status:"rejected"});
 }
 
-/* ==================== CLASSEMENT ==================== */
-function loadRank(){
-  db.collection("users").orderBy("hugsReceived","desc").limit(10)
-  .onSnapshot(s=>{
-    rankList.innerHTML="";
-    let i=1;
-    s.forEach(d=>{
-      rankList.innerHTML+=`${i++}. ${d.data().pseudo} — 💖 ${d.data().hugsReceived}<br>`;
+/* ========================================================= */
+/*                  MODULE MESSAGES PRIVÉS DM                */
+/* ========================================================= */
+
+function loadFriendsForDM(){
+  const email=auth.currentUser.email;
+  db.collection("users").doc(email).onSnapshot(doc=>{
+    dmTarget.innerHTML="";
+    doc.data().friends.forEach(f=>{
+      dmTarget.innerHTML+=`<option value="${f}">${f}</option>`;
     });
   });
+
+  loadDM();
 }
 
-/* ==================== BADGES ==================== */
-function loadBadges(){
-  db.collection("users").doc(auth.currentUser.email).onSnapshot(doc=>{
-    const u=doc.data();
-    const b=[];
-    if(u.hugsReceived>=1)b.push("Premier câlin 🐾");
-    if(u.hugsReceived>=10)b.push("Câlineur confirmé 😽");
-    if(u.hugsReceived>=50)b.push("Câlineur expert 🌟");
-    badgeList.innerHTML=b.join("<br>");
-  });
-}
-
-/* ==================== CHAT ==================== */
-function sendChat(){
-  const msg=chatInput.value.trim();
+function sendDM(){
+  const msg=dmInput.value.trim();
   if(!msg)return;
-  db.collection("chat").add({
-    pseudo:pseudoDisplay.textContent,
-    msg,
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  });
-  chatInput.value="";
-}
+  const target=dmTarget.value;
+  const email=auth.currentUser.email;
 
-function loadChat(){
-  db.collection("chat").orderBy("createdAt")
-  .onSnapshot(s=>{
-    chatMessages.innerHTML="";
-    s.forEach(d=>{
-      chatMessages.innerHTML+=`<div class="message">🐱 <b>${d.data().pseudo}:</b> ${d.data().msg}</div>`;
+  db.collection("users").doc(email).get().then(doc=>{
+    const sender=doc.data().pseudo;
+    db.collection("messages").add({
+      from:sender,
+      to:target,
+      msg,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
+    dmInput.value="";
   });
 }
-</script>
 
+function loadDM(){
+  const email=auth.currentUser.email;
+  db.collection("users").doc(email).get().then(doc=>{
+    const pseudo=doc.data().pseudo;
+
+    db.collection("messages")
+      .orderBy("createdAt")
+      .onSnapshot(s=>{
+        dmMessages.innerHTML="";
+        s.forEach(d=>{
+          const m=d.data();
+          if(m.from===pseudo && m.to===dmTarget.value) dmMessages.innerHTML+=`<div>➡️ ${m.msg}</div>`;
+          if(m.to===pseudo && m.from===dmTarget.value) dmMessages.innerHTML+=`<div>⬅️ ${m.msg}</div>`;
+        });
+      });
+  });
+}
+
+/* ========================================================= */
+/*                        BOUTIQUE                            */
+/* ========================================================= */
+
+const SHOP_ITEMS = [
+  {id:"gift_heart",name:"Cœur 💖",cost:0},
+  {id:"gift_star",name:"Étoile ⭐",cost:0},
+  {id:"gift_ribbon",name:"Ruban 🎀",cost:0}
+];
+
+function loadShop(){
+  shopItems.innerHTML="";
+  SHOP_ITEMS.forEach(i=>{
+    shopItems.innerHTML+=`${i.name} <button onclick="buyItem('${i.id}')">Obtenir 🎁</button><br>`;
+  });
+}
+
+function buyItem(id){
+  const email=auth.currentUser.email;
+  db.collection("inventory").add({
+    owner:email,
+    item:id,
+    acquiredAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  alert("Objet ajouté 🎁");
+}
+
+function loadInventory(){
+  const email=auth.currentUser.email;
+  db.collection("inventory")
+    .where("owner","==",email)
+    .onSnapshot(s=>{
+      inventory.innerHTML="";
+      s.forEach(d=>{
+        inventory.innerHTML+=`${d.data().item}<br>`;
+      });
+    });
+}
+
+/* ========================================================= */
+/*                         CLASSEMENT                         */
+/* ========================================================= */
+
+function loadRank(){
+  db.collection("users")
+    .orderBy("hugsReceived","desc")
+    .limit(10)
+    .onSnapshot(s=>{
+      rankList.innerHTML="";
+      let i=1;
+      s.forEach(d=>{
+        rankList.innerHTML+=`${i++}. ${d.data().pseudo} — 💖 ${d.data().hugsReceived}<br>`;
+      });
+    });
+}
+
+</script>
 </body>
 </html>
+
