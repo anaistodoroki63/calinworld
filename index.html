@@ -2,176 +2,337 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>CâlinWorld 🌸</title>
+<title>Hugsaur 🐱🤍</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body {
   font-family: 'Comic Sans MS', Arial, sans-serif;
   background: linear-gradient(135deg, #ffd6e8, #ffe4f2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  margin: 0;
+  margin:0;
+  padding:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
 }
 .container {
-  background: white;
-  border-radius: 25px;
-  padding: 25px;
-  width: 90%;
-  max-width: 450px;
-  text-align: center;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  width:90%;
+  max-width:480px;
+  background:white;
+  border-radius:25px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+  padding:20px;
+  text-align:center;
 }
 input {
-  width: 90%;
-  padding: 10px;
-  margin: 6px 0;
-  border-radius: 15px;
-  border: 2px solid #ffb6c1;
+  width:90%;
+  padding:10px;
+  border-radius:15px;
+  border:2px solid #ffb6c1;
+  margin:6px 0;
 }
 button {
-  background: #ff69b4;
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  margin-top: 10px;
-  border-radius: 20px;
-  cursor: pointer;
+  background:#ff69b4;
+  color:white;
+  border:none;
+  padding:10px 20px;
+  border-radius:20px;
+  cursor:pointer;
+  margin-top:8px;
 }
-#userBox { display:none; margin-top:10px; }
+.box {display:none;margin-top:15px;}
+hr {margin:15px 0;}
+.message {margin:4px 0;font-size:14px;}
 </style>
 </head>
 
 <body>
 <div class="container">
-  <h1>CâlinWorld 🌸</h1>
+  <h1>Hugsaur 🐱🤍</h1>
 
+  <!-- Auth Box -->
   <div id="authBox">
     <h3>Créer un compte</h3>
     <input id="emailRegister" type="email" placeholder="Email 💌">
     <input id="passwordRegister" type="password" placeholder="Mot de passe 🔒">
     <input id="pseudoRegister" placeholder="Pseudo kawaii 🐱">
     <button onclick="register()">Créer un compte ✨</button>
-
     <hr>
-
     <h3>Connexion</h3>
     <input id="emailLogin" type="email" placeholder="Email 💌">
     <input id="passwordLogin" type="password" placeholder="Mot de passe 🔒">
     <button onclick="login()">Connexion 🤗</button>
   </div>
 
-<div id="userBox">
-  <h2>Bienvenue <span id="pseudoDisplay"></span> 😽</h2>
-
-  <div id="statsBox"></div>
-  <div style="margin-top:10px;">
-    <button onclick="ouvrirAmis()">👫 Amis</button>
-    <button onclick="ouvrirCalins()">🤗 Câlins</button>
-    <button onclick="ouvrirClassement()">🌟 Classement</button>
-    <button onclick="ouvrirBadges()">🏆 Badges</button>
+  <!-- User Box -->
+  <div id="userBox" style="display:none;">
+    <h2>Bienvenue <span id="pseudoDisplay"></span> 😽</h2>
+    <div id="statsBox"></div>
+    <br>
+    <button onclick="openBox('friendsBox')">👫 Amis</button>
+    <button onclick="openBox('hugBox')">🐱 Câlins</button>
+    <button onclick="openBox('rankBox')">🌟 Classement</button>
+    <button onclick="openBox('badgeBox')">🏆 Badges</button>
+    <button onclick="openBox('chatBox')">💬 Chat</button>
+    <br><br>
+    <button onclick="logout()">Déconnexion 🚪</button>
   </div>
 
-  <div id="amisBox" style="display:none;"></div>
-<div id="calinsBox" style="display:none;"></div>
-<div id="classementBox" style="display:none;"></div>
-<div id="badgesBox" style="display:none;"></div>
- 
-  <br>
-  <button onclick="logout()">Déconnexion 🚪</button>
+  <!-- Friends -->
+  <div id="friendsBox" class="box">
+    <h3>👫 Amis</h3>
+    <input id="amiPseudo" placeholder="Pseudo à ajouter 🐱">
+    <button onclick="sendFriendRequest()">Ajouter 🤝</button>
+    <h4>Demandes reçues :</h4>
+    <div id="friendRequests"></div>
+    <h4>Mes amis :</h4>
+    <div id="friendList"></div>
+  </div>
+
+  <!-- Hugs -->
+  <div id="hugBox" class="box">
+    <h3>🐱 Demandes de câlins</h3>
+    <button onclick="requestHug()">Demander un câlin 🐱🤍</button>
+    <div id="hugRequests"></div>
+  </div>
+
+  <!-- Ranking -->
+  <div id="rankBox" class="box">
+    <h3>🌟 Classement des câlins</h3>
+    <div id="rankList"></div>
+  </div>
+
+  <!-- Badges -->
+  <div id="badgeBox" class="box">
+    <h3>🏆 Badges</h3>
+    <div id="badgeList"></div>
+  </div>
+
+  <!-- Chat -->
+  <div id="chatBox" class="box">
+    <h3>💬 Chat kawaii</h3>
+    <div id="chatMessages"></div>
+    <input id="chatInput" placeholder="Message 🐾">
+    <button onclick="sendChat()">Envoyer 💌</button>
+  </div>
 </div>
 
-  <script>
-function afficherBox(b) {
-  amisBox.style.display = "none";
-  calinsBox.style.display = "none";
-  classementBox.style.display = "none";
-  badgesBox.style.display = "none";
-  if (b) document.getElementById(b).style.display = "block";
-}
-
-function ouvrirAmis(){ afficherBox("amisBox"); }
-function ouvrirCalins(){ afficherBox("calinsBox"); }
-function ouvrirClassement(){ afficherBox("classementBox"); }
-function ouvrirBadges(){ afficherBox("badgesBox"); }
-</script>
-  
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
+/* 🔥 REMPLACER CE BLOC PAR TON CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyAJ9Cn4YVIw5SgKmJ31BJCq8Dx6sGdYbLc",
   authDomain: "calinworld-568d1.firebaseapp.com",
   projectId: "calinworld-568d1",
-  storageBucket: "calinworld-568d1.appspot.com",
+  storageBucket: "calinworld-568d1.firebasestorage.app",
   messagingSenderId: "474110538958",
   appId: "1:474110538958:web:160db43f618b4295c0cc9f"
 };
+/* 🔥 FIN DU BLOC */
 
 firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Création de compte
-function register() {
-  const email = emailRegister.value;
-  const password = passwordRegister.value;
-  const pseudo = pseudoRegister.value;
+function openBox(id){
+  document.querySelectorAll('.box').forEach(b=>b.style.display='none');
+  document.getElementById(id).style.display='block';
+}
 
-  auth.createUserWithEmailAndPassword(email, password)
-  .then(() => {
+function register(){
+  const email=emailRegister.value;
+  const pass=passwordRegister.value;
+  const pseudo=pseudoRegister.value;
+  auth.createUserWithEmailAndPassword(email,pass).then(()=>{
     db.collection("users").doc(email).set({
-      email,
-      pseudo,
-      hugsSent: 0,
-      hugsReceived: 0,
-      badges: [],
-      friends: [],
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      email,pseudo,
+      hugsSent:0,hugsReceived:0,
+      badges:[],friends:[],
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
-    alert("Compte créé 🎉 Bienvenue " + pseudo + " !");
-  })
-  .catch(err => alert(err.message));
+    alert("Bienvenue sur Hugsaur 🐱🤍");
+  }).catch(e=>alert(e.message));
 }
 
-// Connexion
-function login() {
-  const email = emailLogin.value;
-  const password = passwordLogin.value;
-  auth.signInWithEmailAndPassword(email, password)
-  .catch(err => alert(err.message));
+function login(){
+  auth.signInWithEmailAndPassword(emailLogin.value,passwordLogin.value)
+  .catch(e=>alert(e.message));
 }
 
-// Déconnexion
-function logout() {
-  auth.signOut();
-}
+function logout(){auth.signOut();}
 
-// Suivi état utilisateur
-auth.onAuthStateChanged(user => {
-  if (user) {
-    db.collection("users").doc(user.email).get().then(doc => {
-      pseudoDisplay.textContent = doc.data().pseudo;
-    });
-    authBox.style.display = "none";
-    userBox.style.display = "block";
-  } else {
-    authBox.style.display = "block";
-    userBox.style.display = "none";
-    pseudoDisplay.textContent = doc.data().pseudo;
-    statsBox.innerHTML = `
-  🫂 Amis : ${doc.data().friends.length}<br>
-  🤗 Câlins envoyés : ${doc.data().hugsSent}<br>
-  💖 Câlins reçus : ${doc.data().hugsReceived}
-`;
+auth.onAuthStateChanged(user=>{
+  if(!user){
+    authBox.style.display="block";
+    userBox.style.display="none";
+    return;
   }
+  authBox.style.display="none";
+  userBox.style.display="block";
+
+  db.collection("users").doc(user.email).onSnapshot(doc=>{
+    const u=doc.data();
+    pseudoDisplay.textContent=u.pseudo;
+    statsBox.innerHTML=`🐱 Amis: ${u.friends.length}<br>🤗 Envoyés: ${u.hugsSent}<br>💖 Reçus: ${u.hugsReceived}`;
+  });
+
+  loadFriends();
+  loadFriendRequests();
+  loadRank();
+  loadBadges();
+  loadChat();
+  loadHugRequests();
 });
+
+/* ==================== AMIS ==================== */
+function sendFriendRequest(){
+  const pseudo=amiPseudo.value.trim();
+  if(!pseudo){alert("Entre un pseudo 🐱");return;}
+  const email=auth.currentUser.email;
+  db.collection("users").doc(email).get().then(doc=>{
+    const mine=doc.data().pseudo;
+    db.collection("friendRequests").add({from:mine,to:pseudo,status:"pending"});
+    alert("Demande envoyée 🤝");
+  });
+}
+
+function loadFriendRequests(){
+  const email=auth.currentUser.email;
+  db.collection("users").doc(email).get().then(doc=>{
+    const mine=doc.data().pseudo;
+    db.collection("friendRequests").where("to","==",mine).where("status","==","pending")
+    .onSnapshot(s=>{
+      friendRequests.innerHTML="";
+      s.forEach(d=>{
+        friendRequests.innerHTML+=`${d.data().from} te demande 🥺 
+        <button onclick="acceptFriend('${d.id}','${d.data().from}')">Accepter 💖</button>
+        <button onclick="rejectFriend('${d.id}')">Refuser 😿</button><br>`;
+      });
+    });
+  });
+}
+
+function acceptFriend(id,from){
+  const email=auth.currentUser.email;
+  db.collection("users").doc(email).update({
+    friends:firebase.firestore.FieldValue.arrayUnion(from)
+  });
+  db.collection("friendRequests").doc(id).update({status:"accepted"});
+}
+
+function rejectFriend(id){
+  db.collection("friendRequests").doc(id).update({status:"rejected"});
+}
+
+function loadFriends(){
+  const email=auth.currentUser.email;
+  db.collection("users").doc(email).onSnapshot(doc=>{
+    friendList.innerHTML=doc.data().friends.map(f=>`🐱 ${f}`).join("<br>");
+  });
+}
+
+/* ==================== CÂLINS ==================== */
+
+function requestHug(){
+  const email=auth.currentUser.email;
+  db.collection("users").doc(email).get().then(doc=>{
+    const pseudo=doc.data().pseudo;
+    doc.data().friends.forEach(f=>{
+      db.collection("hugRequests").add({from:pseudo,to:f,status:"pending"});
+    });
+    alert("Demande de câlin envoyée 🐱🤍");
+  });
+}
+
+function loadHugRequests(){
+  const email=auth.currentUser.email;
+  db.collection("users").doc(email).get().then(doc=>{
+    const pseudo=doc.data().pseudo;
+    db.collection("hugRequests").where("to","==",pseudo).where("status","==","pending")
+    .onSnapshot(s=>{
+      hugRequests.innerHTML="";
+      s.forEach(d=>{
+        hugRequests.innerHTML+=`${d.data().from} veut un câlin 🐱🤍 
+        <button onclick="acceptHug('${d.id}','${d.data().from}')">Accepter 💖</button>
+        <button onclick="rejectHug('${d.id}')">Refuser 😿</button><br>`;
+      });
+    });
+  });
+}
+
+function acceptHug(id,from){
+  const email=auth.currentUser.email;
+  db.collection("users").doc(email).get().then(doc=>{
+    const me=doc.data().pseudo;
+    db.collection("users").doc(auth.currentUser.email).update({
+      hugsReceived:firebase.firestore.FieldValue.increment(1)
+    });
+    db.collection("users").where("pseudo","==",from).get().then(snap=>{
+      snap.forEach(u=>{
+        db.collection("users").doc(u.id).update({
+          hugsSent:firebase.firestore.FieldValue.increment(1)
+        });
+      });
+    });
+    db.collection("hugRequests").doc(id).update({status:"accepted"});
+  });
+}
+
+function rejectHug(id){
+  db.collection("hugRequests").doc(id).update({status:"rejected"});
+}
+
+/* ==================== CLASSEMENT ==================== */
+function loadRank(){
+  db.collection("users").orderBy("hugsReceived","desc").limit(10)
+  .onSnapshot(s=>{
+    rankList.innerHTML="";
+    let i=1;
+    s.forEach(d=>{
+      rankList.innerHTML+=`${i++}. ${d.data().pseudo} — 💖 ${d.data().hugsReceived}<br>`;
+    });
+  });
+}
+
+/* ==================== BADGES ==================== */
+function loadBadges(){
+  db.collection("users").doc(auth.currentUser.email).onSnapshot(doc=>{
+    const u=doc.data();
+    const b=[];
+    if(u.hugsReceived>=1)b.push("Premier câlin 🐾");
+    if(u.hugsReceived>=10)b.push("Câlineur confirmé 😽");
+    if(u.hugsReceived>=50)b.push("Câlineur expert 🌟");
+    badgeList.innerHTML=b.join("<br>");
+  });
+}
+
+/* ==================== CHAT ==================== */
+function sendChat(){
+  const msg=chatInput.value.trim();
+  if(!msg)return;
+  db.collection("chat").add({
+    pseudo:pseudoDisplay.textContent,
+    msg,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  chatInput.value="";
+}
+
+function loadChat(){
+  db.collection("chat").orderBy("createdAt")
+  .onSnapshot(s=>{
+    chatMessages.innerHTML="";
+    s.forEach(d=>{
+      chatMessages.innerHTML+=`<div class="message">🐱 <b>${d.data().pseudo}:</b> ${d.data().msg}</div>`;
+    });
+  });
+}
 </script>
+
 </body>
 </html>
