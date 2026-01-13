@@ -83,13 +83,34 @@ hr {margin:15px 0;}
   <div id="friendsBox" class="box">
     <h3>👫 Amis</h3>
     <input id="amiPseudo" placeholder="Pseudo à ajouter 🐱">
-    <button onclick="sendFriendRequest()">Ajouter 🤝</button>
-    <h4>Demandes reçues :</h4>
-    <div id="friendRequests"></div>
-    <h4>Mes amis :</h4>
-    <div id="friendList"></div>
-  </div>
+    <function sendFriendRequest() {
+  const pseudoCible = amiPseudo.value.trim();
+  if (!pseudoCible) return alert("Entre un pseudo 🐱");
 
+  <const email = auth.currentUser.email;
+
+  db.collection("users").doc(email).get().then(doc => {
+    <const pseudoMoi = doc.data().pseudo;
+
+   // vérifier si l'utilisateur existe
+  <  db.collection("users").where("pseudo", "==", pseudoCible).get().then(snap => {
+    <  if (snap.empty) {
+        alert("Ce pseudo n'existe pas encore 😿");
+      <  return;
+      }
+
+      // créer la demande
+    <  db.collection("friendRequests").add({
+    <    from: pseudoMoi,
+        to: pseudoCible,
+        status: "pending",
+    <    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      alert("Demande envoyée 🤝");
+    });
+  });
+}
   <!-- Hugs -->
   <div id="hugBox" class="box">
     <h3>🐱 Demandes de câlins</h3>
