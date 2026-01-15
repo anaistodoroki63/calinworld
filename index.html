@@ -304,12 +304,18 @@ function register(){
   const email=emailRegister.value;
   const pass=passwordRegister.value;
   const pseudo=pseudoRegister.value.trim();
-  const avatar=registerAvatarFinal.value;
 
-  if(!email||!pass||!pseudo||!avatar){
+  if(!email||!pass||!pseudo){
     alert("Complète tout 😺");
     return;
   }
+
+  if(!SELECTED_AVATAR){
+    showAvatarSelection();
+    return;
+  }
+
+  const avatar = SELECTED_AVATAR;
 
   auth.createUserWithEmailAndPassword(email,pass).then(()=>{
     db.collection("users").doc(email).set({
@@ -326,7 +332,6 @@ function register(){
     alert("Compte créé 😽✨");
   }).catch(e=>alert(e.message));
 }
-
 /* ========================================================= */
 /*                       LOGIN                                */
 /* ========================================================= */
@@ -420,7 +425,8 @@ function sendFriendRequest(){
       return;
     }
 
-    db.collection("users").where("pseudo","==",pseudoCible).get().then(snap=>{
+    // Recherche du compte cible
+    db.collection("users").where("pseudo","==",pseudoCible).limit(1).get().then(snap=>{
       if(snap.empty){
         alert("Ce pseudo n'existe pas 😿");
         return;
@@ -435,61 +441,6 @@ function sendFriendRequest(){
 
       alert("Demande envoyée 🤝");
     });
-  });
-}
-
-function loadFriendRequests(){
-  const email=auth.currentUser.email;
-  db.collection("users").doc(email).get().then(doc=>{
-    const pseudoMoi = doc.data().pseudo;
-
-    db.collection("friendRequests")
-      .where("to","==",pseudoMoi)
-      .where("status","==","pending")
-      .onSnapshot(s=>{
-        friendRequests.innerHTML="";
-        s.forEach(d=>{
-          friendRequests.innerHTML+=`
-            ${d.data().from} veut être ton ami 🐱<br>
-            <button onclick="acceptFriend('${d.id}','${d.data().from}')">Accepter 💖</button>
-            <button onclick="rejectFriend('${d.id}')">Refuser 😿</button>
-            <br><br>
-          `;
-        });
-      });
-  });
-}
-
-function acceptFriend(id,fromPseudo){
-  const email=auth.currentUser.email;
-
-  db.collection("users").doc(email).get().then(doc=>{
-    const me=doc.data().pseudo;
-
-    db.collection("users").doc(email).update({
-      friends:firebase.firestore.FieldValue.arrayUnion(fromPseudo)
-    });
-
-    db.collection("users").where("pseudo","==",fromPseudo).get().then(snap=>{
-      snap.forEach(u=>{
-        db.collection("users").doc(u.id).update({
-          friends:firebase.firestore.FieldValue.arrayUnion(me)
-        });
-      });
-    });
-
-    db.collection("friendRequests").doc(id).update({status:"accepted"});
-  });
-}
-
-function rejectFriend(id){
-  db.collection("friendRequests").doc(id).update({status:"rejected"});
-}
-
-function loadFriends(){
-  const email=auth.currentUser.email;
-  db.collection("users").doc(email).onSnapshot(doc=>{
-    friendList.innerHTML = doc.data().friends.map(f=>`🐱 ${f}`).join("<br>");
   });
 }
 
